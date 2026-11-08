@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Headspace</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6b63d1">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#eef1fb; --bg2:#f6eef6; --card:rgba(255,255,255,.78); --ink:#262a45; --muted:#7a7f9c; --line:#dde0f0;
+  --accent:#6b63d1; --soft:#e6e4fa; --glow:#f4a261; --dot:#f08a4b;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg1:#12142b; --bg2:#1d1733; --card:rgba(30,33,64,.8); --ink:#e9eaf8; --muted:#9a9fc4; --line:#2e3263; --accent:#9d96f5; --soft:#2b2e5e; --glow:#f4a261; --dot:#ffa066;}
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;line-height:1.55;background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed}
+[hidden]{display:none!important}
+.top,.tabs,.wrap{max-width:980px;margin:0 auto;padding-left:16px;padding-right:16px}
+.top{display:flex;align-items:center;gap:14px;padding-top:26px}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:2rem;letter-spacing:-.5px}
+.orb{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--glow));box-shadow:0 0 18px var(--glow);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.25);box-shadow:0 0 28px var(--glow)}}
+@media (prefers-reduced-motion:reduce){.orb{animation:none}}
+.tag{color:var(--muted);font-size:.9rem}
+.tabs{display:flex;gap:6px;padding-top:18px;padding-bottom:6px;overflow-x:auto}
+.tab{background:none;border:none;color:var(--muted);font:inherit;border-radius:20px;padding:7px 16px;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 2px 14px rgba(107,99,209,.15)}
+.wrap{display:grid;gap:22px;grid-template-columns:1fr;padding-top:12px;padding-bottom:50px}
+@media(min-width:800px){.wrap{grid-template-columns:1.3fr 1fr;align-items:start}}
+.wrap.one{grid-template-columns:1fr}
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:26px;padding:24px}
+.card header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{font-size:1.3rem;margin:0;font-weight:500;text-transform:capitalize}
+h2{margin:0 0 2px;font-size:1.2rem;font-weight:500;text-transform:capitalize}
+h3{margin:22px 0 10px;font-size:1rem;font-weight:700}
+.sub{color:var(--muted);font-size:.85rem;margin-bottom:14px}
+.nav button{background:none;border:1px solid var(--line);color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer}
+.nav .today{width:auto;border-radius:18px;padding:0 14px;font:inherit;font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0}
+.day{position:relative;aspect-ratio:1/1;border:none;background:none;color:var(--ink);font:inherit;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding-bottom:6px}
+.day:hover{background:var(--soft)}
+.day.other{color:var(--muted);opacity:.4}
+.day.today{background:var(--soft);font-weight:700}
+.day.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.day .dot{position:absolute;bottom:8px;width:6px;height:6px;border-radius:50%;background:var(--dot);box-shadow:0 0 8px var(--glow)}
+button:focus-visible,[contenteditable]:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tb{display:flex;gap:6px;margin-bottom:8px}
+.tb button{width:42px;height:38px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:1rem;cursor:pointer}
+.tb button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+#editor{min-height:120px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--bg1);overflow-wrap:anywhere}
+#editor:empty:before{content:attr(data-ph);color:var(--muted)}
+.flaginput{width:100%;margin-top:8px;padding:10px 14px;border:1px solid var(--line);border-radius:16px;background:var(--bg1);color:var(--ink);font:inherit}
+#suggest{margin-top:8px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:20px;padding:10px 20px;font:inherit;font-weight:700;cursor:pointer;margin-top:10px}
+.btn.ghost{background:none;color:var(--muted);border:1px solid var(--line);font-weight:400;margin-left:6px}
+.note{border-top:1px solid var(--line);padding:14px 0}
+.note .rt{margin:0 0 8px;overflow-wrap:anywhere}
+.note small{color:var(--muted)}
+.act{float:right}
+.act button{background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-size:.85rem;padding:0 0 0 10px}
+.act button:hover{color:var(--dot)}
+.empty{color:var(--muted);padding:12px 0}
+.chip{display:inline-block;background:var(--soft);color:var(--accent);border:none;border-radius:14px;padding:2px 11px;font:inherit;font-size:.8rem;margin:0 6px 6px 0;cursor:pointer}
+.chip.big{font-size:1rem;padding:7px 16px}
+.chip span{margin-left:8px;opacity:.7}
+.link{background:none;border:none;color:var(--accent);font:inherit;font-size:inherit;cursor:pointer;padding:0;text-decoration:underline}
+.tools{margin-top:16px;font-size:.85rem}
+.tools button{background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;padding:0;margin-right:12px;text-decoration:underline}
+.dayhead{margin:18px 0 0;font-weight:700;text-transform:capitalize}
+/* statistieken */
+.hero{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.ring{position:relative;width:160px;height:160px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .mid b{font-family:'Fraunces',serif;font-weight:300;font-size:2.6rem;line-height:1}
+.ring .mid span{font-size:.75rem;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;min-width:240px}
+.fact{background:var(--soft);border-radius:18px;padding:14px}
+.fact b{display:block;font-size:1.6rem;font-weight:500}
+.fact span{font-size:.8rem;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;margin-top:6px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:.75rem;color:var(--muted)}
+.col i{display:block;width:100%;max-width:38px;border-radius:12px;background:linear-gradient(var(--accent),var(--soft));min-height:6px}
+.col.now i{background:linear-gradient(var(--glow),var(--soft))}
+.hbar{display:block;width:100%;background:none;border:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer;padding:6px 0}
+.hbar .l{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:4px}
+.hbar .l span{color:var(--muted)}
+.hbar .t{height:12px;border-radius:8px;background:var(--soft);overflow:hidden}
+.hbar .t i{display:block;height:100%;border-radius:8px}
+.overlay{position:fixed;inset:0;background:rgba(20,22,48,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.sheet{background:var(--bg1);color:var(--ink);border:1px solid var(--line);border-radius:28px;padding:26px;width:100%;max-width:400px;max-height:92vh;overflow:auto}
+.sl{display:block;margin:20px 0}
+.sl-h{display:flex;justify-content:space-between;align-items:baseline}
+.sl-h output{font-family:'Fraunces',serif;font-weight:300;font-size:2rem;line-height:1}
+input[type=range]{width:100%;accent-color:var(--accent);height:34px}
+.sl-f{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.metric{background:var(--soft);border-radius:20px;padding:14px}
+.mh{display:flex;justify-content:space-between;align-items:baseline}
+.mh b{font-family:'Fraunces',serif;font-weight:300;font-size:2rem}
+.metric small{color:var(--muted)}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.addrow .flaginput{flex:1;min-width:140px;width:auto;margin:0}
+.addrow .btn{margin:0}
+.goal{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.goal small{display:block;color:var(--muted)}
+.circ{width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);background:none;cursor:pointer}
+.circ:hover{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.x{background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1}
+.x:hover{color:var(--dot)}
+.pride{background:linear-gradient(160deg,rgba(244,162,97,.2),var(--card))}
+.wins{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:6px}
+.win{position:relative;border-radius:20px;padding:14px 16px 12px;background:linear-gradient(140deg,rgba(244,162,97,.3),var(--soft))}
+.win:before{content:'★';color:var(--glow);display:block;font-size:1.1rem}
+.win .x{position:absolute;top:6px;right:10px}
+.win small{display:block;color:var(--muted);margin-top:6px}
+.seg{display:flex;gap:4px;background:var(--soft);border-radius:20px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;border:none;background:none;color:var(--muted);font:inherit;border-radius:16px;padding:7px;cursor:pointer}
+.seg button.on{background:var(--bg1);color:var(--ink);font-weight:700}
+button.metric{border:none;font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%}
+button.metric:hover{box-shadow:0 0 0 2px var(--accent) inset}
+.chip.on{background:var(--accent);color:#fff}
+.f4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:14px}
+.erow{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.erow b{font-family:'Fraunces',serif;font-weight:300;font-size:1.7rem;text-align:center}
+.erow small{color:var(--muted)}
+.chips{margin-bottom:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin:8px 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:4px;border-radius:2px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);width:calc(100% - 32px);max-width:440px;background:var(--bg1);border:1px solid var(--line);border-left:4px solid var(--glow);border-radius:20px;padding:18px 44px 16px 20px;box-shadow:0 10px 40px rgba(20,22,48,.25);z-index:20;cursor:pointer;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translate(-50%,12px)}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
+.toast .x{position:absolute;top:8px;right:12px}
+.toast small{display:block;color:var(--muted);margin-top:6px}
+.qt{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:1.2rem;line-height:1.4}
+.quote{position:relative;padding:16px 34px 16px 0;border-top:1px solid var(--line)}
+.quote small{color:var(--muted)}
+.quote .x{position:absolute;top:12px;right:0}
+select.flaginput{appearance:auto}
+mark{background:linear-gradient(transparent 40%,rgba(244,162,97,.5) 40%);color:inherit;border-radius:3px;padding:0 2px}
+.toast{max-height:60vh;overflow:auto}
+</style>
+</head>
+<body>
+<header class="top"><div class="brand"><i class="orb"></i>Headspace</div><div style="margin-left:auto;display:flex;gap:8px;align-items:center"><button class="chip" id="installBtn" hidden style="margin:0">Installeer app</button><button class="chip" id="ciBtn" style="margin:0">Check-in</button></div></header>
+<nav class="tabs">
+  <button class="tab on" data-tab="cal">Agenda</button>
+  <button class="tab" data-tab="recent">Terugblik</button>
+  <button class="tab" data-tab="flags">Flags</button>
+  <button class="tab" data-tab="goals">Doelen</button>
+  <button class="tab" data-tab="stats">Headspace</button>
+</nav>
+
+<div class="wrap" id="v-cal">
+  <section class="card" aria-label="Kalender">
+    <header>
+      <h1 id="title"></h1>
+      <div class="nav">
+        <button id="prev" aria-label="Vorige maand">‹</button>
+        <button id="todayBtn" class="today">Vandaag</button>
+        <button id="next" aria-label="Volgende maand">›</button>
+      </div>
+    </header>
+    <div class="grid" id="dows"></div>
+    <div class="grid" id="days"></div>
+  </section>
+  <section class="card" aria-label="Notities">
+    <h2 id="dayTitle"></h2>
+    <div class="sub" id="daySub"></div>
+    <div class="tb" id="tb">
+      <button data-cmd="bold" aria-label="Vet (Ctrl+B)"><b>B</b></button>
+      <button data-cmd="italic" aria-label="Cursief (Ctrl+I)"><i>I</i></button>
+      <button data-cmd="underline" aria-label="Onderlijnd (Ctrl+U)"><u>U</u></button>
+      <button data-cmd="quote" aria-label="Markeer als quote" title="Markeer als quote">❝</button>
+    </div>
+    <div id="editor" contenteditable="true" data-ph="Wat wil je loslaten?"></div>
+    <input class="flaginput" id="flagInput" placeholder="Flags, bv. sport, school (komma)" autocomplete="off">
+    <div id="suggest"></div>
+    <div>
+      <button class="btn" id="save">Laat los</button>
+      <button class="btn ghost" id="cancel" hidden>Annuleren</button>
+    </div>
+    <div id="notes"></div>
+    <div class="tools">
+      <button id="export">Back-up downloaden</button>
+      <button id="import">Back-up laden</button>
+      <input type="file" id="file" accept=".json" hidden>
+    </div>
+  </section>
+</div>
+
+<div class="wrap one" id="v-recent" hidden>
+  <section class="card"><header><h1>Je laatste gedachten</h1></header><div id="recent"></div></section>
+</div>
+
+<div class="wrap one" id="v-flags" hidden>
+  <section class="card">
+    <header><h1 id="fTitle">Flags</h1><button class="btn ghost" id="fBack" hidden style="margin:0">‹ Alle flags</button></header>
+    <div id="fBody"></div>
+  </section>
+</div>
+
+<div class="wrap" id="v-goals" hidden>
+  <section class="card">
+    <header><h1>Doelen</h1></header>
+    <div class="addrow">
+      <input class="flaginput" id="goalIn" placeholder="Wat wil je bereiken?" autocomplete="off">
+      <input class="flaginput" id="goalDate" type="date" style="flex:none" aria-label="Deadline (optioneel)">
+      <button class="btn" id="goalAdd">Voeg toe</button>
+    </div>
+    <div id="goalList"></div>
+  </section>
+  <section class="card pride">
+    <header><h1>Waar ik trots op ben</h1><span class="sub" id="prideCount" style="margin:0"></span></header>
+    <div class="addrow">
+      <input class="flaginput" id="winIn" placeholder="Een kleine overwinning..." autocomplete="off">
+      <button class="btn" id="winAdd">Bewaar</button>
+    </div>
+    <div class="wins" id="winList"></div>
+  </section>
+</div>
+
+<div class="wrap one" id="v-stats" hidden>
+  <section class="card"><header>
+      <div style="display:flex;align-items:center;gap:10px"><button class="btn ghost" id="sBack" hidden style="margin:0" aria-label="Terug">‹</button><h1 id="sTitle">Headspace</h1></div>
+      <span class="sub" id="sSub" style="margin:0">laatste 7 dagen</span>
+    </header><div id="stats"></div></section>
+</div>
+
+<div id="toast" class="toast" hidden role="status"></div>
+
+<div id="ciModal" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="ciT">
+  <div class="sheet">
+    <div class="seg" id="ciMode"><button data-mode="daily" class="on">Dagelijks</button><button data-mode="moment">Nu</button></div>
+    <h2 id="ciT" style="text-transform:none">Hoe is het vandaag?</h2>
+    <div class="sub" id="ciSub"></div>
+    <div id="ciRows"></div>
+    <input class="flaginput" id="ciNote" placeholder="Wat speelt er? (optioneel)" autocomplete="off" hidden style="margin:0 0 6px">
+    <button class="btn" id="ciSave">Opslaan</button>
+    <button class="btn ghost" id="ciLater">Later</button>
+  </div>
+</div>
+
+<script>
+const KEY = 'journal-notes-v1';
+const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const DOW = ['ma','di','wo','do','vr','za','zo'];
+const WD = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+
+// { "2026-11-08": [ {id, text, html, flags, time}, ... ] }
+let data = {};
+try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { data = {}; }
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { alert('Opslaan mislukt.'); } };
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const toKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = new Date();
+let view = new Date(today.getFullYear(), today.getMonth(), 1);
+let selected = toKey(today), editingId = null, curFlag = null;
+const label = k => { const [y, m, d] = k.split('-').map(Number); return `${WD[new Date(y, m - 1, d).getDay()]} ${d} ${MONTHS[m - 1]}`; };
+
+// Alleen vet/cursief/onderlijnd toelaten (veilig tegen rare HTML)
+const OK = { B:1, STRONG:1, I:1, EM:1, U:1, BR:1, DIV:1, P:1, MARK:1 };
+function clean(html) {
+  const body = new DOMParser().parseFromString(html, 'text/html').body;
+  (function walk(el) {
+    [...el.childNodes].forEach(c => {
+      if (c.nodeType === 3) return;
+      if (c.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(c.tagName)) { c.remove(); return; }
+      walk(c);
+      if (!OK[c.tagName]) { c.replaceWith(...c.childNodes); return; }
+      [...c.attributes].forEach(a => c.removeAttribute(a.name));
+    });
+  })(body);
+  return body.innerHTML;
+}
+const noteHtml = n => n.html ? clean(n.html) : esc(n.text || '').replace(/\n/g, '<br>');
+const words = n => (n.text || '').trim().split(/\s+/).filter(Boolean).length;
+const chips = n => (n.flags || []).map(f => `<button class="chip" data-flag="${esc(f)}">${esc(f)}</button>`).join('');
+
+/* ---------- Tabs ---------- */
+function showTab(name) {
+  ['cal', 'recent', 'flags', 'goals', 'stats'].forEach(t => $('v-' + t).hidden = t !== name);
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  if (name === 'recent') renderRecent();
+  if (name === 'flags') renderFlags();
+  if (name === 'goals') renderGoals();
+  if (name === 'stats') renderStats();
+}
+document.querySelector('.tabs').addEventListener('click', e => {
+  const t = e.target.dataset.tab;
+  if (!t) return;
+  if (t === 'flags') curFlag = null;
+  if (t === 'stats') curMetric = null;
+  showTab(t);
+});
+function openFlags(f) { curFlag = f; showTab('flags'); }
+function openDay(k) {
+  const [y, m] = k.split('-').map(Number);
+  view = new Date(y, m - 1, 1);
+  showTab('cal');
+  selectDay(k);
+}
+
+/* ---------- Kalender ---------- */
+function renderCalendar() {
+  $('title').textContent = `${MONTHS[view.getMonth()]} ${view.getFullYear()}`;
+  $('dows').innerHTML = DOW.map(d => `<div class="dow">${d}</div>`).join('');
+  const first = new Date(view.getFullYear(), view.getMonth(), 1);
+  const start = new Date(first); start.setDate(1 - (first.getDay() + 6) % 7);
+  let html = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const k = toKey(d), has = data[k] && data[k].length;
+    const cls = ['day', d.getMonth() !== view.getMonth() && 'other', k === toKey(today) && 'today', k === selected && 'sel'].filter(Boolean).join(' ');
+    html += `<button class="${cls}" data-k="${k}" aria-label="${d.getDate()} ${MONTHS[d.getMonth()]}${has ? ', heeft notities' : ''}">${d.getDate()}${has ? '<span class="dot"></span>' : ''}</button>`;
+  }
+  $('days').innerHTML = html;
+}
+
+function renderNotes() {
+  $('dayTitle').textContent = label(selected);
+  const list = data[selected] || [];
+  $('daySub').textContent = list.length ? `${list.length} gedachte${list.length > 1 ? 'n' : ''} losgelaten` : 'Nog niets losgelaten';
+  $('notes').innerHTML = list.length ? list.map(n => `
+    <div class="note">
+      <span class="act"><button data-edit="${n.id}">Bewerk</button><button data-del="${n.id}">Verwijder</button></span>
+      <div class="rt">${noteHtml(n)}</div>
+      <div>${chips(n)}</div>
+      <small>${new Date(n.time).toLocaleTimeString('nl-BE', {hour: '2-digit', minute: '2-digit'})}</small>
+    </div>`).join('') : '<div class="empty">Schrijf hierboven wat je kwijt wil.</div>';
+  const names = Object.keys(allFlags()).sort();
+  $('suggest').innerHTML = names.map(f => `<button class="chip" data-add="${esc(f)}">${esc(f)}</button>`).join('');
+}
+
+function resetEditor() {
+  editingId = null;
+  $('editor').innerHTML = '';
+  $('flagInput').value = '';
+  $('save').textContent = 'Laat los';
+  $('cancel').hidden = true;
+}
+function selectDay(k) { selected = k; resetEditor(); renderCalendar(); renderNotes(); }
+
+$('days').addEventListener('click', e => {
+  const b = e.target.closest('.day');
+  if (!b) return;
+  const [y, m] = b.dataset.k.split('-').map(Number);
+  if (m - 1 !== view.getMonth()) view = new Date(y, m - 1, 1);
+  selectDay(b.dataset.k);
+});
+$('prev').onclick = () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderCalendar(); };
+$('next').onclick = () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderCalendar(); };
+$('todayBtn').onclick = () => { view = new Date(today.getFullYear(), today.getMonth(), 1); selectDay(toKey(today)); };
+
+/* ---------- Editor: vet / cursief / onderlijnd ---------- */
+// Ctrl+B / Ctrl+I / Ctrl+U werken automatisch in dit veld (Cmd op Mac); de knoppen zijn voor de gsm.
+$('tb').addEventListener('mousedown', e => e.preventDefault()); // selectie behouden
+$('tb').addEventListener('click', e => {
+  const c = e.target.closest('button')?.dataset.cmd;
+  if (!c) return;
+  $('editor').focus();
+  if (c === 'quote') toggleQuote(); else document.execCommand(c);
+  updateTb();
+});
+function markAtSelection() {
+  const sel = getSelection();
+  if (!sel.rangeCount || !$('editor').contains(sel.anchorNode)) return null;
+  const el = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+  const m = el.closest('mark');
+  return m && $('editor').contains(m) ? m : null;
+}
+function addFlag(f) {
+  const have = $('flagInput').value.toLowerCase().split(/[,\s]+/).filter(Boolean);
+  if (!have.includes(f)) $('flagInput').value = have.concat(f).join(', ');
+}
+// Geselecteerde tekst als quote markeren (en de flag 'quote' toevoegen), of de markering weer weghalen
+function toggleQuote() {
+  const m = markAtSelection();
+  if (m) { m.replaceWith(...m.childNodes); return; }
+  const sel = getSelection();
+  if (!sel.rangeCount || sel.isCollapsed || !$('editor').contains(sel.anchorNode)) { alert('Selecteer eerst het stukje tekst dat je quote is.'); return; }
+  const box = document.createElement('div');
+  box.appendChild(sel.getRangeAt(0).cloneContents());
+  document.execCommand('insertHTML', false, '<mark>' + box.innerHTML + '</mark>');
+  addFlag('quote');
+}
+function updateTb() {
+  document.querySelectorAll('#tb button').forEach(b => {
+    const c = b.dataset.cmd;
+    b.classList.toggle('on', c === 'quote' ? !!markAtSelection() : document.queryCommandState(c));
+  });
+}
+document.addEventListener('selectionchange', () => { if (document.activeElement === $('editor')) updateTb(); });
+$('editor').addEventListener('input', () => { if (!$('editor').innerText.trim()) $('editor').innerHTML = ''; });
+$('editor').addEventListener('paste', e => { // altijd als gewone tekst plakken
+  e.preventDefault();
+  document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+});
+
+$('save').onclick = () => {
+  const text = $('editor').innerText.trim();
+  if (!text) return;
+  const html = clean($('editor').innerHTML);
+  const flags = [...new Set($('flagInput').value.toLowerCase().split(/[,\s]+/).map(f => f.replace(/^#/, '')).filter(Boolean))];
+  const list = data[selected] = data[selected] || [];
+  if (editingId) {
+    const n = list.find(x => x.id === editingId);
+    if (n) Object.assign(n, { text, html, flags });
+  } else {
+    list.push({ id: Date.now().toString(36), text, html, flags, time: Date.now() });
+  }
+  persist(); resetEditor(); renderCalendar(); renderNotes();
+};
+$('cancel').onclick = resetEditor;
+
+$('suggest').addEventListener('click', e => {
+  const f = e.target.dataset.add;
+  if (!f) return;
+  const have = $('flagInput').value.toLowerCase().split(/[,\s]+/).filter(Boolean);
+  if (!have.includes(f)) $('flagInput').value = have.concat(f).join(', ');
+});
+
+$('notes').addEventListener('click', e => {
+  if (e.target.dataset.flag) { openFlags(e.target.dataset.flag); return; }
+  const del = e.target.dataset.del, edit = e.target.dataset.edit;
+  const list = data[selected] || [];
+  if (del && confirm('Deze notitie verwijderen?')) {
+    data[selected] = list.filter(n => n.id !== del);
+    if (!data[selected].length) delete data[selected];
+    persist(); renderCalendar(); renderNotes();
+  }
+  if (edit) {
+    const n = list.find(x => x.id === edit);
+    editingId = edit;
+    $('editor').innerHTML = noteHtml(n);
+    $('flagInput').value = (n.flags || []).join(', ');
+    $('editor').focus();
+    $('save').textContent = 'Wijziging opslaan';
+    $('cancel').hidden = false;
+  }
+});
+
+/* ---------- Terugblik: laatste gedachten ---------- */
+function allNotes() {
+  const items = [];
+  for (const k in data) data[k].forEach(n => items.push({ k, n }));
+  return items.sort((a, b) => b.k.localeCompare(a.k) || b.n.time - a.n.time);
+}
+function renderRecent() {
+  const items = allNotes().slice(0, 10);
+  if (!items.length) { $('recent').innerHTML = '<div class="empty">Nog niets losgelaten. Begin in de agenda.</div>'; return; }
+  let html = '', last = '';
+  items.forEach(({ k, n }) => {
+    if (k !== last) { html += `<div class="dayhead"><button class="link" data-day="${k}">${label(k)}</button></div>`; last = k; }
+    html += `<div class="note"><div class="rt">${noteHtml(n)}</div><div>${chips(n)}</div></div>`;
+  });
+  $('recent').innerHTML = html;
+}
+$('recent').addEventListener('click', e => {
+  if (e.target.dataset.day) openDay(e.target.dataset.day);
+  if (e.target.dataset.flag) openFlags(e.target.dataset.flag);
+});
+
+/* ---------- Flags ---------- */
+function allFlags() {
+  const all = {};
+  for (const k in data) data[k].forEach(n => (n.flags || []).forEach(f => (all[f] = all[f] || []).push({ k, n })));
+  return all;
+}
+function renderFlags() {
+  const all = allFlags();
+  $('fBack').hidden = !curFlag;
+  if (!curFlag) {
+    $('fTitle').textContent = 'Flags';
+    const names = Object.keys(all).sort();
+    $('fBody').innerHTML = names.length
+      ? names.map(f => `<button class="chip big" data-open="${esc(f)}">${esc(f)}<span>${all[f].length}</span></button>`).join('')
+      : '<div class="empty">Nog geen flags. Voeg er een toe als je iets loslaat.</div>';
+    return;
+  }
+  $('fTitle').textContent = curFlag;
+  const items = (all[curFlag] || []).sort((a, b) => b.k.localeCompare(a.k) || b.n.time - a.n.time);
+  $('fBody').innerHTML = quoteCtl() + (items.length ? items.map(({ k, n }) =>
+    `<div class="note"><div class="rt">${noteHtml(n)}</div><small><button class="link" data-day="${k}">${label(k)} ${k.slice(0, 4)}</button></small></div>`
+  ).join('') : '<div class="empty">Geen notities met deze flag.</div>');
+}
+$('fBody').addEventListener('click', e => {
+  if (e.target.dataset.open) { curFlag = e.target.dataset.open; renderFlags(); }
+  if (e.target.dataset.day) openDay(e.target.dataset.day);
+});
+$('fBack').onclick = () => { curFlag = null; renderFlags(); };
+
+/* ---------- Ruimte: statistieken ---------- */
+// "Headspace vrijgemaakt" = aantal woorden dat je hebt losgelaten.
+const hue = s => [...s].reduce((a, c) => a + c.charCodeAt(0) * 7, 0) % 360;
+const dayWords = k => (data[k] || []).reduce((s, n) => s + words(n), 0);
+const ago = i => { const d = new Date(today); d.setDate(d.getDate() - i); return d; };
+
+function renderStats() {
+  if (curMetric) return renderMetric();
+  $('sTitle').textContent = 'Headspace'; $('sBack').hidden = true; $('sSub').textContent = 'laatste 7 dagen';
+  const week = [...Array(7)].map((_, i) => ago(6 - i));
+  const perDay = week.map(d => dayWords(toKey(d)));
+  const total = perDay.reduce((a, b) => a + b, 0);
+  const prev = [...Array(7)].reduce((s, _, i) => s + dayWords(toKey(ago(7 + i))), 0);
+  const active = perDay.filter(w => w > 0).length;
+  const notes = week.reduce((s, d) => s + (data[toKey(d)] || []).length, 0);
+  let streak = 0;
+  for (let i = dayWords(toKey(today)) ? 0 : 1; dayWords(toKey(ago(i))) > 0; i++) streak++;
+
+  const flagStats = {}, none = { w: 0 };
+  week.forEach(d => (data[toKey(d)] || []).forEach(n => {
+    if (!(n.flags || []).length) none.w += words(n);
+    (n.flags || []).forEach(f => flagStats[f] = (flagStats[f] || 0) + words(n));
+  }));
+  const rows = Object.entries(flagStats).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const maxF = rows.length ? rows[0][1] : 1;
+  const maxD = Math.max(...perDay, 1);
+  const C = 2 * Math.PI * 62;
+  const diff = total - prev;
+  const metricsHtml = metricsBlock(week);
+  const combinedHtml = combinedBlock();
+
+  $('stats').innerHTML = `
+    <div class="hero">
+      <div class="ring">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--soft)" stroke-width="14"/>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - active / 7)}"/>
+        </svg>
+        <div class="mid"><b>${total}</b><span>woorden losgelaten</span></div>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>${active}/7</b><span>dagen actief</span></div>
+        <div class="fact"><b>${notes}</b><span>gedachten</span></div>
+        <div class="fact"><b>${streak}</b><span>dagen op rij</span></div>
+      </div>
+    </div>
+    <div class="sub" style="margin-top:12px">${prev ? `${diff >= 0 ? '+' : ''}${diff} woorden t.o.v. de week ervoor.` : 'De ring toont op hoeveel van de 7 dagen je iets losliet.'}</div>
+
+    <h3>Per dag</h3>
+    <div class="bars">${week.map((d, i) => `<div class="col ${i === 6 ? 'now' : ''}">${perDay[i] || ''}<i style="height:${perDay[i] ? Math.max(8, perDay[i] / maxD * 100 - 14) : 0}%"></i>${DOW[(d.getDay() + 6) % 7]}</div>`).join('')}</div>
+
+    <h3>Hoe je je voelde</h3>
+    ${metricsHtml}
+
+    ${combinedHtml}
+
+    <h3>Waar ruimte is vrijgekomen</h3>
+    ${rows.length ? rows.map(([f, w]) => `<button class="hbar" data-open="${esc(f)}"><div class="l"><b>${esc(f)}</b><span>${w} woorden</span></div><div class="t"><i style="width:${w / maxF * 100}%;background:hsl(${hue(f)} 60% 62%)"></i></div></button>`).join('') : '<div class="empty">Geen flags gebruikt in de laatste 7 dagen.</div>'}
+    ${none.w ? `<div class="sub" style="margin-top:8px">+ ${none.w} woorden zonder flag</div>` : ''}`;
+}
+$('stats').addEventListener('click', e => {
+  const mt = e.target.closest('[data-metric]'), rg = e.target.closest('[data-range]'), b = e.target.closest('[data-open]');
+  if (mt) { curMetric = mt.dataset.metric; renderStats(); }
+  else if (rg) { range = Number(rg.dataset.range); renderStats(); }
+  else if (b) openFlags(b.dataset.open);
+});
+$('sBack').onclick = () => { curMetric = null; renderStats(); };
+
+/* ---------- Check-ins: dagelijks + momentopnames ---------- */
+// Elke check-in is één entry: { id, date, time, type: 'daily' | 'moment', mood, stress, sleep?, note? }
+// Per dag combineren we alles: gemiddelde (lijn), hoogste en laagste (balkje), elke check-in (bolletje).
+const EK = 'headspace-entries-v1', CK = 'headspace-checkins-v1', GK = 'headspace-goals-v1', LP = 'headspace-lastprompt';
+const METRICS = [
+  { k: 'mood',   n: 'Mood',   lo: 'laag',   hi: 'top',         c: 'hsl(38 90% 58%)' },
+  { k: 'stress', n: 'Stress', lo: 'rustig', hi: 'veel stress', c: 'hsl(350 70% 65%)' },
+  { k: 'sleep',  n: 'Slaap',  lo: 'slecht', hi: 'super',       c: 'hsl(245 60% 68%)' }
+];
+let entries = null, goals = { goals: [], wins: [] }, ciMode = 'daily', curMetric = null, range = 7;
+const saveE = () => { try { localStorage.setItem(EK, JSON.stringify(entries)); } catch (e) {} };
+const saveG = () => { try { localStorage.setItem(GK, JSON.stringify(goals)); } catch (e) {} };
+const noon = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 8).getTime(); };
+try { entries = JSON.parse(localStorage.getItem(EK)); } catch (e) {}
+try { goals = JSON.parse(localStorage.getItem(GK)) || goals; } catch (e) {}
+if (!entries) { // oude dagelijkse check-ins overnemen
+  entries = [];
+  try {
+    const old = JSON.parse(localStorage.getItem(CK)) || {};
+    for (const k in old) entries.push({ id: 'd' + k, date: k, time: noon(k), type: 'daily', ...old[k] });
+  } catch (e) {}
+  saveE();
+}
+const hasDaily = k => entries.some(e => e.date === k && e.type === 'daily');
+
+$('ciRows').innerHTML = METRICS.map(m => `
+  <label class="sl" id="cr-${m.k}"><div class="sl-h"><b>${m.n}</b><output id="co-${m.k}">5</output></div>
+  <input type="range" min="1" max="10" value="5" id="ci-${m.k}">
+  <div class="sl-f"><span>${m.lo}</span><span>${m.hi}</span></div></label>`).join('');
+METRICS.forEach(m => $('ci-' + m.k).addEventListener('input', e => $('co-' + m.k).textContent = e.target.value));
+
+function setMode(mode) {
+  ciMode = mode;
+  const daily = mode === 'daily';
+  document.querySelectorAll('#ciMode button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  $('ciT').textContent = daily ? 'Hoe is het vandaag?' : 'Hoe voel je je nu?';
+  $('ciSub').textContent = daily ? 'Je dagelijkse check-in, inclusief hoe je sliep.' : 'Een momentopname. Je kan er zoveel doen als je wil.';
+  $('cr-sleep').hidden = !daily;
+  $('ciNote').hidden = daily;
+  $('ciNote').value = '';
+  const c = daily ? entries.find(e => e.date === toKey(today) && e.type === 'daily') : null;
+  METRICS.forEach(m => { const v = (c && c[m.k]) || 5; $('ci-' + m.k).value = v; $('co-' + m.k).textContent = v; });
+}
+function openCheckin(mode) { setMode(mode || (hasDaily(toKey(today)) ? 'moment' : 'daily')); $('ciModal').hidden = false; }
+const closeCheckin = () => { $('ciModal').hidden = true; };
+$('ciBtn').onclick = () => openCheckin();
+$('ciLater').onclick = closeCheckin;
+$('ciMode').addEventListener('click', e => { if (e.target.dataset.mode) setMode(e.target.dataset.mode); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCheckin(); });
+$('ciSave').onclick = () => {
+  const k = toKey(today), now = Date.now(), vals = {};
+  METRICS.forEach(m => { if (ciMode === 'daily' || m.k !== 'sleep') vals[m.k] = Number($('ci-' + m.k).value); });
+  if (ciMode === 'daily') { // één per dag: opnieuw opslaan vervangt de vorige
+    entries = entries.filter(e => !(e.date === k && e.type === 'daily'));
+    entries.push({ id: 'd' + k, date: k, time: now, type: 'daily', ...vals });
+  } else {
+    const note = $('ciNote').value.trim();
+    entries.push({ id: 'm' + now.toString(36), date: k, time: now, type: 'moment', ...vals, ...(note ? { note } : {}) });
+  }
+  saveE(); closeCheckin();
+  if (!$('v-stats').hidden) renderStats();
+};
+
+// Per dag: gemiddelde, hoogste en laagste waarde van één metric
+function dayStats(m, keys) {
+  const by = {};
+  entries.forEach(e => { if (e[m] != null) (by[e.date] = by[e.date] || []).push(e[m]); });
+  return keys.map(k => {
+    const v = by[k];
+    return v ? { avg: v.reduce((a, b) => a + b, 0) / v.length, min: Math.min(...v), max: Math.max(...v), n: v.length } : null;
+  });
+}
+const avgOf = ds => { const v = ds.filter(Boolean).map(x => x.avg); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+
+function spark(vals, color) {
+  const W = 140, H = 48;
+  const pts = vals.map((v, i) => v == null ? null : [8 + i * (W - 16) / 6, H - 6 - (v - 1) / 9 * (H - 12)]);
+  let path = '';
+  pts.forEach(p => { if (p) path += (path ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="48" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(p => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${color}"/>` : '').join('')}</svg>`;
+}
+
+function metricsBlock(week) {
+  const keys = week.map(toKey), prevKeys = [...Array(7)].map((_, i) => toKey(ago(13 - i)));
+  if (!METRICS.some(m => dayStats(m.k, keys).some(Boolean)))
+    return '<div class="empty">Vul de dagelijkse check-in in om hier je mood, stress en slaap te zien.</div>';
+  return '<div class="sub">Tik op een kaartje voor het verloop.</div><div class="metrics">' + METRICS.map(m => {
+    const ds = dayStats(m.k, keys), a = avgOf(ds), p = avgOf(dayStats(m.k, prevKeys));
+    const note = a != null && p != null ? `${a - p >= 0 ? '+' : ''}${(a - p).toFixed(1)} t.o.v. vorige week` : 'gemiddelde score';
+    return `<button class="metric" data-metric="${m.k}"><div class="mh"><span>${m.n}</span><b>${a == null ? '–' : a.toFixed(1)}</b></div>${spark(ds.map(x => x && x.avg), m.c)}<small>${note}</small></button>`;
+  }).join('') + '</div>';
+}
+
+const rangeChips = () => '<div class="chips">' + [7, 30, 90].map(r => `<button class="chip ${r === range ? 'on' : ''}" data-range="${r}">${r} dagen</button>`).join('') + '</div>';
+
+// Legende: gevulde bolletjes = dagelijks, holle = momentopname
+function legend(ms) {
+  return '<div class="legend">' + (ms.length > 1 ? ms.map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join('') : '') +
+    '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="currentColor"/></svg>dagelijkse check-in</span>' +
+    '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>momentopname</span></div>';
+}
+
+// Eén grafiek voor één of meer metrics. detail = balkjes (laag-hoog per dag) en ringen rond uitschieters
+function drawChart(ms, days, keys, detail) {
+  const n = days.length, W = 600, H = 260, L = 30, R = 10, T = 10, B = 28, pw = W - L - R, ph = H - T - B;
+  const y = v => T + (10 - v) / 9 * ph, cx = i => L + (i + .5) / n * pw;
+  const ex = e => { const d = new Date(e.time); return L + (keys.indexOf(e.date) + (d.getHours() * 60 + d.getMinutes()) / 1440) / n * pw; };
+  const step = n === 7 ? 1 : n === 30 ? 5 : 15, bw = Math.min(18, pw / n * .5);
+  const rd = n > 30 ? 3.5 : 5, rm = n > 30 ? 2.5 : 3.4;
+  let g = [2, 4, 6, 8, 10].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`).join('');
+  g += days.map((d, i) => i % step ? '' : `<text x="${cx(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${n === 7 ? DOW[(d.getDay() + 6) % 7] : d.getDate() + '/' + (d.getMonth() + 1)}</text>`).join('');
+  ms.forEach(m => {
+    const ds = dayStats(m.k, keys), es = entries.filter(e => e[m.k] != null && keys.includes(e.date));
+    if (detail) g += ds.map((d, i) => d && d.max > d.min ? `<rect x="${cx(i) - bw / 2}" y="${y(d.max) - bw / 2}" width="${bw}" height="${y(d.min) - y(d.max) + bw}" rx="${bw / 2}" fill="${m.c}" fill-opacity=".25"/>` : '').join('');
+    let line = '';
+    ds.forEach((d, i) => { if (d) line += (line ? 'L' : 'M') + cx(i).toFixed(1) + ' ' + y(d.avg).toFixed(1); });
+    g += `<path d="${line}" fill="none" stroke="${m.c}" stroke-width="${detail ? 2.5 : 2.2}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    es.filter(e => e.type !== 'daily').forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rm}" fill="var(--bg1)" stroke="${m.c}" stroke-width="1.8"/>`);
+    es.filter(e => e.type === 'daily').forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rd}" fill="${m.c}" stroke="var(--bg1)" stroke-width="2"/>`);
+    if (detail && es.length) {
+      const hi = es.reduce((a, e) => e[m.k] >= a[m.k] ? e : a), lo = es.reduce((a, e) => e[m.k] < a[m.k] ? e : a);
+      [hi, lo].forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rd + 3.5}" fill="none" stroke="${m.c}" stroke-width="2"/>`);
+    }
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Verloop van ${ms.map(m => m.n).join(', ')}">${g}</svg>`;
+}
+
+// Grafiek met mood, stress en slaap samen (tab Headspace)
+function combinedBlock() {
+  if (!entries.length) return '';
+  const days = [...Array(range)].map((_, i) => ago(range - 1 - i)), keys = days.map(toKey);
+  const has = entries.some(e => keys.includes(e.date));
+  return `<h3>Alles samen</h3>${rangeChips()}` + (has
+    ? `${drawChart(METRICS, days, keys, false)}${legend(METRICS)}<div class="sub">De lijnen zijn het gemiddelde per dag. Bij stress is lager beter.</div>`
+    : '<div class="empty">Nog geen check-ins in deze periode.</div>');
+}
+
+// Detailgrafiek voor één metric
+function renderMetric() {
+  const m = METRICS.find(x => x.k === curMetric);
+  $('sTitle').textContent = m.n; $('sBack').hidden = false; $('sSub').textContent = `laatste ${range} dagen`;
+  const days = [...Array(range)].map((_, i) => ago(range - 1 - i)), keys = days.map(toKey);
+  const ds = dayStats(m.k, keys);
+  const inR = entries.filter(e => e[m.k] != null && keys.includes(e.date)).sort((a, b) => a.time - b.time);
+  const chips = rangeChips();
+  if (!inR.length) { $('stats').innerHTML = chips + '<div class="empty">Nog geen check-ins in deze periode.</div>'; return; }
+
+  const hi = inR.reduce((a, e) => e[m.k] >= a[m.k] ? e : a), lo = inR.reduce((a, e) => e[m.k] < a[m.k] ? e : a);
+  const fmt = e => { const d = new Date(e.time); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const svg = drawChart([m], days, keys, true);
+
+  const rows = inR.slice().reverse().slice(0, 8).map(e =>
+    `<div class="erow"><b>${e[m.k]}</b><div><small>${fmt(e)}, ${e.type === 'daily' ? 'dagelijks' : 'momentopname'}</small>${e.note ? `<div>${esc(e.note)}</div>` : ''}</div></div>`).join('');
+
+  $('stats').innerHTML = `${chips}${svg}${legend([m])}
+    <div class="sub">De lijn is het gemiddelde van de dag. Het balkje loopt van je laagste tot je hoogste moment en de ringen markeren de uitschieters.${m.k === 'sleep' ? ' Slaap komt alleen uit je dagelijkse check-in.' : ''}</div>
+    <div class="f4">
+      <div class="fact"><b>${avgOf(ds).toFixed(1)}</b><span>gemiddelde</span></div>
+      <div class="fact"><b>${hi[m.k]}</b><span>hoogste, ${fmt(hi)}</span></div>
+      <div class="fact"><b>${lo[m.k]}</b><span>laagste, ${fmt(lo)}</span></div>
+      <div class="fact"><b>${inR.length}</b><span>check-ins</span></div>
+    </div>
+    <h3>Recent</h3>${rows}`;
+}
+
+/* ---------- Doelen en trots ---------- */
+function renderGoals() {
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  $('goalList').innerHTML = goals.goals.length ? goals.goals.map(g => {
+    let d = '';
+    if (g.due) {
+      const n = Math.round((new Date(g.due + 'T00:00') - now) / 864e5);
+      d = n < 0 ? 'deadline voorbij' : n === 0 ? 'vandaag' : `nog ${n} dag${n > 1 ? 'en' : ''}`;
+    }
+    return `<div class="goal"><button class="circ" data-done="${g.id}" aria-label="Doel bereikt"></button><div>${esc(g.text)}${d ? `<small>${d}</small>` : ''}</div><button class="x" data-gdel="${g.id}" aria-label="Verwijder">×</button></div>`;
+  }).join('') : '<div class="empty">Nog geen doelen. Wat wil je bereiken?</div>';
+  const wins = goals.wins.slice().sort((a, b) => b.date.localeCompare(a.date) || b.time - a.time);
+  $('prideCount').textContent = wins.length ? `${wins.length} ★` : '';
+  $('winList').innerHTML = wins.length ? wins.map(w =>
+    `<div class="win"><button class="x" data-wdel="${w.id}" aria-label="Verwijder">×</button>${esc(w.text)}<small>${w.goal ? 'Doel bereikt · ' : ''}${label(w.date)}</small></div>`
+  ).join('') : '<div class="empty" style="grid-column:1/-1">Ook kleine dingen tellen. Wat ging er vandaag goed?</div>';
+}
+function addGoal() {
+  const text = $('goalIn').value.trim();
+  if (!text) return;
+  goals.goals.push({ id: Date.now().toString(36), text, due: $('goalDate').value || '' });
+  $('goalIn').value = ''; $('goalDate').value = '';
+  saveG(); renderGoals();
+}
+function addWin() {
+  const text = $('winIn').value.trim();
+  if (!text) return;
+  goals.wins.push({ id: Date.now().toString(36), text, date: toKey(today), time: Date.now() });
+  $('winIn').value = '';
+  saveG(); renderGoals();
+}
+$('goalAdd').onclick = addGoal;
+$('winAdd').onclick = addWin;
+$('goalIn').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+$('winIn').addEventListener('keydown', e => { if (e.key === 'Enter') addWin(); });
+$('v-goals').addEventListener('click', e => {
+  const { done, gdel, wdel } = e.target.dataset;
+  if (done) { // een bereikt doel wordt automatisch iets om trots op te zijn
+    const g = goals.goals.find(x => x.id === done);
+    goals.goals = goals.goals.filter(x => x.id !== done);
+    if (g) goals.wins.push({ id: Date.now().toString(36), text: g.text, date: toKey(today), time: Date.now(), goal: true });
+  }
+  if (gdel && confirm('Dit doel verwijderen?')) goals.goals = goals.goals.filter(x => x.id !== gdel);
+  if (wdel && confirm('Dit verwijderen?')) goals.wins = goals.wins.filter(x => x.id !== wdel);
+  if (done || gdel || wdel) { saveG(); renderGoals(); }
+});
+
+/* ---------- Quotes: notes met de flag 'quote' ---------- */
+// Is een stuk tekst gemarkeerd (knop ❝), dan is dat de quote. Anders telt de hele note.
+const QF = 'headspace-quotefreq';
+const FREQ = { off: null, rare: [15, 40], normal: [4, 12], often: [1, 4] }; // minuten tussen quotes
+let qFreq = 'normal', lastQ = null, toastTimer, nextTimer;
+try { qFreq = localStorage.getItem(QF) || 'normal'; } catch (e) {}
+
+// Quotes uit de vorige versie (apart lijstje) worden gewone notes met flag 'quote'
+function migrateQuotes(list) {
+  const k = toKey(today);
+  data[k] = data[k] || [];
+  const have = new Set(data[k].map(n => n.id));
+  list.forEach(q => {
+    if (have.has('q' + q.id)) return;
+    data[k].push({ id: 'q' + q.id, text: q.text + (q.author ? ' — ' + q.author : ''), html: '<mark>' + esc(q.text) + '</mark>' + (q.author ? ' — ' + esc(q.author) : ''), flags: ['quote'], time: Date.now() });
+  });
+  if (!data[k].length) delete data[k];
+}
+try {
+  const old = JSON.parse(localStorage.getItem('headspace-quotes-v1') || '[]');
+  if (old.length) { migrateQuotes(old); persist(); renderCalendar(); }
+  localStorage.removeItem('headspace-quotes-v1');
+} catch (e) {}
+
+function quotePool() {
+  const pool = [];
+  for (const k in data) data[k].forEach(n => {
+    if (!(n.flags || []).includes('quote')) return;
+    const marks = [...new DOMParser().parseFromString(noteHtml(n), 'text/html').querySelectorAll('mark')].map(m => m.textContent.trim()).filter(Boolean);
+    (marks.length ? marks : [(n.text || '').trim()]).filter(Boolean).forEach((t, i) => pool.push({ id: n.id + '-' + i, text: t, date: k }));
+  });
+  return pool;
+}
+function showQuote() {
+  const all = quotePool();
+  if (!all.length) return false;
+  const pool = all.length > 1 ? all.filter(q => q.id !== lastQ) : all; // niet twee keer dezelfde na elkaar
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  lastQ = q.id;
+  $('toast').innerHTML = `<button class="x" aria-label="Sluiten">×</button><div class="qt">${esc(q.text)}</div><small>uit je notitie van ${label(q.date)}</small>`;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').hidden = true, 15000);
+  return true;
+}
+function fireQuote() {
+  const a = document.activeElement;
+  const busy = document.hidden || !$('ciModal').hidden || (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable));
+  if (busy) { nextTimer = setTimeout(fireQuote, 60000); return; } // later opnieuw proberen
+  showQuote();
+  scheduleQuote();
+}
+function scheduleQuote() {
+  clearTimeout(nextTimer);
+  const f = FREQ[qFreq];
+  if (f) nextTimer = setTimeout(fireQuote, (f[0] + Math.random() * (f[1] - f[0])) * 60000);
+}
+// instellingen staan bovenaan bij de flag 'quote'
+function quoteCtl() {
+  if (curFlag !== 'quote') return '';
+  const opt = (v, t) => `<option value="${v}"${qFreq === v ? ' selected' : ''}>${t}</option>`;
+  return `<div class="qctl"><div class="sub">Een quote verschijnt af en toe terwijl Headspace open staat. Markeer met ❝ welk stuk van een notitie de quote is.</div>
+    <select class="flaginput" id="qFreq" style="margin:0 0 8px" aria-label="Hoe vaak">${opt('off', 'Nooit een quote tonen')}${opt('rare', 'Zelden (15 tot 40 min)')}${opt('normal', 'Af en toe (4 tot 12 min)')}${opt('often', 'Vaak (1 tot 4 min)')}</select>
+    <button class="btn ghost" id="qNow" style="margin:0 0 10px">Toon er nu één</button></div>`;
+}
+$('toast').addEventListener('click', () => { $('toast').hidden = true; });
+$('fBody').addEventListener('change', e => {
+  if (e.target.id !== 'qFreq') return;
+  qFreq = e.target.value;
+  try { localStorage.setItem(QF, qFreq); } catch (err) {}
+  scheduleQuote();
+});
+$('fBody').addEventListener('click', e => {
+  if (e.target.id === 'qNow' && !showQuote()) alert('Geef eerst een notitie de flag "quote".');
+});
+
+/* ---------- Back-up ---------- */
+$('export').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ version: 3, notes: data, entries, goals }, null, 2)], {type: 'application/json'}));
+  a.download = `headspace-backup-${toKey(new Date())}.json`;
+  a.click();
+};
+$('import').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const raw = JSON.parse(r.result);
+      const inc = raw.version >= 2 ? raw : { notes: raw };
+      for (const k in inc.notes) {
+        const have = new Set((data[k] || []).map(n => n.id));
+        data[k] = (data[k] || []).concat(inc.notes[k].filter(n => !have.has(n.id)));
+      }
+      const extra = Object.keys(inc.checkins || {}).map(k => ({ id: 'd' + k, date: k, time: noon(k), type: 'daily', ...inc.checkins[k] }));
+      const haveE = new Set(entries.map(x => x.id));
+      entries = entries.concat((inc.entries || []).concat(extra).filter(x => !haveE.has(x.id)));
+      if (inc.goals) ['goals', 'wins'].forEach(t => {
+        const have = new Set(goals[t].map(x => x.id));
+        goals[t] = goals[t].concat((inc.goals[t] || []).filter(x => !have.has(x.id)));
+      });
+      if (inc.quotes) migrateQuotes(inc.quotes);
+      persist(); saveE(); saveG(); scheduleQuote(); renderCalendar(); renderNotes();
+    } catch (err) { alert('Dit bestand kon niet gelezen worden.'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+};
+
+renderCalendar();
+renderNotes();
+// Eerste keer openen vandaag: check-in tonen (één keer per dag)
+try {
+  if (!hasDaily(toKey(today)) && localStorage.getItem(LP) !== toKey(today)) {
+    localStorage.setItem(LP, toKey(today));
+    openCheckin('daily');
+  }
+} catch (e) {}
+scheduleQuote();
+
+// ---------- Installeerbare app (PWA) ----------
+let installEvent = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; $('installBtn').hidden = false; });
+window.addEventListener('appinstalled', () => { $('installBtn').hidden = true; });
+$('installBtn').onclick = async () => {
+  if (!installEvent) return;
+  installEvent.prompt();
+  await installEvent.userChoice;
+  installEvent = null; $('installBtn').hidden = true;
+};
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
