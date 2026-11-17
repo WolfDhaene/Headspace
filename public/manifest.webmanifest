@@ -1,0 +1,20 @@
+{
+  "name": "Headspace",
+  "short_name": "Headspace",
+  "description": "Laat je gedachten los en hou bij hoe je je voelt.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "nl",
+  "background_color": "#F6F8F2",
+  "theme_color": "#F6F8F2",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Check-in", "url": "/#checkin" },
+    { "name": "Nieuwe gedachte", "url": "/#nieuw" }
+  ]
+}

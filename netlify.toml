@@ -1,4 +1,17 @@
-# Headspace: de site is gewoon de map zelf, de server-kant staat in netlify/functions
+# Netlify: de site staat in /public, de functies (sync + meldingen) in /netlify/functions
 [build]
-  publish = "."
-  functions = "netlify/functions"
+  publish = "public"
+
+# Node 24 voor de build en (daardoor ook) voor de functies; @netlify/blobs heeft minstens 22.12 nodig
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# De service worker mag nooit oud zijn, anders komen updates niet door
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

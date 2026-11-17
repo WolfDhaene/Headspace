@@ -1,9 +1,9 @@
 {
   "name": "headspace",
   "private": true,
-  "type": "module",
+  "description": "Headspace: journal met sync en pushmeldingen",
   "dependencies": {
-    "@netlify/blobs": ">=8.0.0",
-    "web-push": "^3.6.7"
+    "@netlify/blobs": "^11.1.9",
+    "web-push": "^4.0.0"
   }
 }

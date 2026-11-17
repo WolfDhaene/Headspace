@@ -1,0 +1,1306 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Headspace</title>
+<meta name="description" content="Laat je gedachten los en hou bij hoe je je voelt.">
+<meta name="theme-color" content="#F6F8F2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* ---------- Basis: kleuren, lettertypes ---------- */
+@font-face{font-family:'Newsreader';src:url(fonts/newsreader.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
+@font-face{font-family:'Newsreader';src:url(fonts/newsreader-italic.woff2) format('woff2');font-weight:200 800;font-style:italic;font-display:swap}
+@font-face{font-family:'Instrument Sans';src:url(fonts/instrument-sans.woff2) format('woff2');font-weight:400 700;font-display:swap}
+:root{
+  --paper:#F6F8F2; --surface:#FFFFFF; --ink:#16221B; --muted:#5E6B62; --faint:#A3AEA6;
+  --line:#DDE4D8; --soft:#EAF0E4; --moss:#2B6A4C; --lime:#D6F45C;
+  --mood:#E39A2D; --stress:#DE5570; --sleep:#5568DA;
+  --serif:'Newsreader',Georgia,serif; --ui:'Instrument Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.5 var(--ui);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);line-height:1.05}
+h2{font-size:1.55rem;line-height:1.15}
+h3{font-size:1.25rem;margin:38px 0 12px}
+.sub{color:var(--muted);font-size:.92rem;margin:6px 0 0}
+.empty{color:var(--muted);padding:26px 0;font-family:var(--serif);font-style:italic;font-size:1.1rem}
+
+/* ---------- Bovenbalk + navigatie ---------- */
+.top{position:sticky;top:0;z-index:10;background:var(--paper);display:flex;align-items:center;gap:12px;padding:10px max(18px,env(safe-area-inset-right)) 10px max(18px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid transparent;transition:border-color .2s}
+.top.scrolled{border-color:var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font:500 1.4rem var(--serif);letter-spacing:-.015em}
+.brand svg{width:26px;height:26px;color:var(--moss)}
+.brand .dot{transform-origin:12px 12px;animation:drift 7s ease-in-out infinite}
+@keyframes drift{50%{transform:rotate(18deg) translate(.6px,-1.2px)}}
+.actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+.pill{border:1px solid var(--ink);border-radius:999px;padding:7px 15px;font-weight:600;font-size:.88rem;transition:background .15s,color .15s}
+.pill:hover{background:var(--ink);color:var(--paper)}
+.gear{position:relative;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--ink)}
+.gear:hover{background:var(--soft)}
+.gear svg{width:21px;height:21px;transition:transform .5s}
+.gear:hover svg{transform:rotate(60deg)}
+.gear i{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;border:2px solid var(--paper);box-sizing:content-box;display:none}
+.gear i.ok{display:block;background:var(--moss)}
+.gear i.busy{display:block;background:var(--moss);animation:blink 1s infinite}
+.gear i.err{display:block;background:var(--mood)}
+@keyframes blink{50%{opacity:.25}}
+.nav{display:flex;gap:4px}
+.nav button{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:500;font-size:.95rem;padding:8px 13px;border-radius:999px;position:relative}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on{color:var(--ink);font-weight:600}
+@media (min-width:860px){
+  .nav{margin-left:28px}
+  .nav svg{display:none}
+  .nav button:hover{color:var(--ink)}
+  .nav button.on:after{content:'';position:absolute;left:13px;right:13px;bottom:3px;height:4px;border-radius:2px;background:var(--lime)}
+}
+@media (max-width:859px){
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+  .nav button{flex:1;flex-direction:column;gap:2px;font-size:.68rem;padding:4px 0}
+  .nav svg{width:56px;height:30px;padding:4px 17px;border-radius:999px;transition:background .25s}
+  .nav button.on svg{background:var(--lime)}
+}
+main{max-width:1120px;margin:0 auto;padding:18px max(18px,env(safe-area-inset-right)) 110px max(18px,env(safe-area-inset-left))}
+@media (min-width:860px){main{padding-top:34px;padding-bottom:60px}}
+.narrow{max-width:720px}
+::view-transition-old(root){animation:vt-out .18s ease both}
+::view-transition-new(root){animation:vt-in .32s cubic-bezier(.2,.7,.2,1) both}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+
+/* ---------- Agenda ---------- */
+.cal{display:grid;gap:30px}
+@media (min-width:860px){.cal{grid-template-columns:360px 1fr;gap:64px;align-items:start}.month{position:sticky;top:92px}}
+.month-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.month-h h2 span{color:var(--faint)}
+.month-h div{display:flex;align-items:center;gap:2px}
+.arrow{width:38px;height:38px;border-radius:50%;font-size:1.3rem;line-height:1}
+.arrow:hover,.textbtn:hover{background:var(--soft)}
+.textbtn{padding:7px 12px;border-radius:999px;font-size:.85rem;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);justify-items:center;row-gap:2px}
+.dow{font-size:.74rem;color:var(--faint);padding:6px 0;font-weight:500}
+.d{position:relative;width:100%;max-width:46px;aspect-ratio:1;border-radius:50%;font-size:.95rem;font-variant-numeric:tabular-nums;transition:background .15s}
+.d:hover{background:var(--soft)}
+.d.out{color:var(--faint)}
+.d.today{background:var(--lime);font-weight:700}
+.d.sel{background:var(--ink);color:var(--paper);font-weight:600}
+.d i{position:absolute;left:50%;bottom:13%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--moss)}
+.d.sel i{background:var(--lime)}
+
+.composer{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:6px;transition:border-color .2s,box-shadow .2s}
+.composer:focus-within{border-color:var(--moss);box-shadow:0 0 0 4px rgba(43,106,76,.1)}
+.rt{font:400 1.2rem/1.55 var(--serif);overflow-wrap:anywhere}
+.rt mark,mark{background:linear-gradient(transparent 12%,var(--lime) 12%,var(--lime) 88%,transparent 88%);color:inherit;padding:0 3px;border-radius:2px}
+#editor{min-height:104px;padding:14px 16px 8px;outline:none}
+#editor:empty:before{content:attr(data-ph);color:var(--faint);font-style:italic}
+#flagInput{display:block;width:100%;border:none;outline:none;background:none;padding:8px 16px;font-size:.92rem;color:var(--moss)}
+#flagInput::placeholder{color:var(--faint)}
+#suggest{padding:0 12px;display:flex;flex-wrap:wrap;gap:2px}
+.composer-f{display:flex;align-items:center;gap:4px;padding:8px 6px 4px 8px;border-top:1px solid var(--soft);margin-top:8px}
+.tb{display:flex;gap:2px;margin-right:auto}
+.tb button{width:42px;height:42px;border-radius:50%;font:500 1.15rem var(--serif)}
+.tb button:hover{background:var(--soft)}
+.tb button.on{background:var(--lime)}
+.btn{background:var(--ink);color:var(--paper);border-radius:999px;padding:11px 22px;font-weight:600;font-size:.95rem;transition:background .15s,transform .1s}
+.btn:hover{background:var(--moss)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{background:var(--line);color:var(--muted);cursor:default}
+.btn.quiet{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.quiet:hover{background:var(--soft)}
+.tag{color:var(--moss);font-size:.88rem;font-weight:500;padding:3px 5px;border-radius:6px}
+.tag:hover{background:var(--soft)}
+/* Het loslaten: de tekst stijgt op en lost op */
+.ghost{position:fixed;z-index:30;pointer-events:none;padding:14px 22px;animation:release 1.2s cubic-bezier(.3,.6,.2,1) forwards}
+@keyframes release{60%{opacity:.5}to{transform:translateY(-150px) scale(1.05);filter:blur(12px);opacity:0;letter-spacing:.08em}}
+
+.notes{margin-top:26px}
+.note{display:grid;grid-template-columns:54px 1fr;gap:4px 10px;padding:18px 0;border-top:1px solid var(--line)}
+.note time{color:var(--faint);font-size:.82rem;padding-top:7px;font-variant-numeric:tabular-nums}
+.note .meta{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin-left:-5px}
+.note .acts{margin-left:auto;display:flex;gap:2px}
+.note .acts button{color:var(--muted);font-size:.82rem;padding:3px 7px;border-radius:6px}
+.note .acts button:hover{background:var(--soft);color:var(--ink)}
+.note.new{animation:land .6s .25s cubic-bezier(.2,.7,.2,1) both}
+@keyframes land{from{opacity:0;transform:translateY(-14px)}}
+.dayhead{margin:34px 0 0;font:500 .85rem var(--ui);color:var(--muted)}
+.dayhead button{padding:4px 0;border-bottom:1px solid var(--line)}
+.dayhead button:hover{color:var(--ink);border-color:var(--ink)}
+.dayhead + .note{border-top:none}
+.more{margin-top:18px}
+
+/* ---------- Flags ---------- */
+.frow{display:flex;align-items:baseline;gap:14px;width:100%;padding:14px 0;border-top:1px solid var(--line);text-align:left}
+.frow b{font:400 clamp(1.5rem,4vw,2.1rem)/1.1 var(--serif);background:linear-gradient(var(--lime),var(--lime)) no-repeat 0 88%/0 38%;transition:background-size .3s}
+.frow:hover b{background-size:100% 38%}
+.frow span{margin-left:auto;color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;font-weight:500;margin-bottom:10px;padding:4px 0}
+.back:hover{color:var(--ink)}
+
+/* ---------- Doelen ---------- */
+.two{display:grid;gap:44px}
+@media (min-width:860px){.two{grid-template-columns:1fr 1fr;gap:64px}}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.field{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;outline:none}
+.field:focus{border-color:var(--moss)}
+.addrow input[type=date]{flex:none;width:150px;color:var(--muted)}
+.goal{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line);font:400 1.15rem/1.35 var(--serif)}
+.goal small{display:block;font:400 .82rem var(--ui);color:var(--muted);margin-top:2px}
+.goal small.late{color:var(--stress)}
+.circ{width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);transition:background .2s}
+.circ:hover{background:var(--lime)}
+.x{width:30px;height:30px;border-radius:50%;color:var(--faint);font-size:1.2rem;line-height:1}
+.x:hover{background:var(--soft);color:var(--ink)}
+.win{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:12px 0 12px 20px;font:400 1.15rem/1.35 var(--serif)}
+.win:before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:3px;background:var(--lime)}
+.win small{display:block;font:400 .82rem var(--ui);color:var(--muted);margin-top:2px}
+.win.new{animation:pop .7s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateX(-12px)}}
+
+/* ---------- Headspace (statistieken) ---------- */
+.lead{font:400 clamp(1.5rem,4.2vw,2.3rem)/1.22 var(--serif);letter-spacing:-.012em;max-width:22em;margin:0}
+.lead b{font-weight:500;background:linear-gradient(transparent 62%,var(--lime) 62%,var(--lime) 92%,transparent 92%)}
+.bubbles{margin-top:22px;width:100%;height:auto;display:block}
+.bubbles circle.b{fill:var(--moss);transform-box:fill-box;transform-origin:center;animation:grow .9s cubic-bezier(.2,.8,.3,1.2) both}
+@keyframes grow{from{transform:scale(0)}}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;transition:border-color .15s,transform .15s}
+.metric:hover{border-color:var(--ink);transform:translateY(-2px)}
+.metric span{font-size:.85rem;color:var(--muted);display:block}
+.metric b{font:400 2rem/1.1 var(--serif);display:block}
+.metric small{color:var(--muted);font-size:.74rem;display:block;line-height:1.3}
+.chips{display:flex;gap:6px;margin:0 0 10px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:.84rem;font-weight:500}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 8px 6px}
+.chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin:10px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:4px;border-radius:2px}
+.hbar{display:block;width:100%;text-align:left;padding:9px 0}
+.hbar div:first-child{display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:5px}
+.hbar div:first-child span{color:var(--muted)}
+.hbar .t{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.hbar .t i{display:block;height:100%;border-radius:4px;background:var(--moss);animation:bar .8s cubic-bezier(.2,.7,.2,1) both;transform-origin:left}
+@keyframes bar{from{transform:scaleX(0)}}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:16px}
+.fact b{font:400 1.9rem/1.1 var(--serif);display:block}
+.fact span{font-size:.8rem;color:var(--muted)}
+.erow{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.erow b{font:400 1.7rem var(--serif);text-align:center}
+.erow small{color:var(--muted)}
+
+/* ---------- Vensters: check-in en instellingen ---------- */
+dialog{border:none;padding:0;background:var(--paper);color:var(--ink);width:100%;max-width:100%;max-height:92dvh;margin:auto 0 0;border-radius:28px 28px 0 0;overflow:auto;overscroll-behavior:contain}
+dialog::backdrop{background:rgba(22,34,27,.38);backdrop-filter:blur(3px)}
+dialog[open]{animation:sheet .38s cubic-bezier(.2,.8,.2,1)}
+dialog[open]::backdrop{animation:fade .3s}
+@keyframes sheet{from{transform:translateY(40%);opacity:0}}
+@keyframes fade{from{opacity:0}}
+.sheet{padding:26px 22px calc(26px + env(safe-area-inset-bottom))}
+@media (min-width:860px){
+  dialog{margin:auto;max-width:480px;border-radius:28px}
+  dialog#set{margin:0 0 0 auto;height:100dvh;max-height:100dvh;border-radius:28px 0 0 28px;max-width:460px}
+  dialog#set[open]{animation:drawer .38s cubic-bezier(.2,.8,.2,1)}
+  @keyframes drawer{from{transform:translateX(60%);opacity:0}}
+  .sheet{padding:34px}
+}
+.seg{display:flex;gap:4px;background:var(--soft);border-radius:999px;padding:4px;margin-bottom:22px}
+.seg button{flex:1;border-radius:999px;padding:8px;font-weight:500;font-size:.9rem;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);font-weight:600}
+.scale{border:none;padding:0;margin:22px 0 0}
+.scale legend{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:0;font-weight:600}
+.scale legend output{font:400 1.5rem var(--serif);color:var(--c)}
+.pips{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:8px}
+.pips label{position:relative}
+.pips input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.pips span{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums;transition:transform .2s cubic-bezier(.2,.9,.3,1.4),background .15s}
+.pips input:checked + span{background:var(--c);border-color:var(--c);color:#fff;font-weight:700;transform:scale(1.14)}
+.pips input:focus-visible + span{outline:2px solid var(--moss);outline-offset:2px}
+.ends{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:6px}
+.sheet-f{display:flex;gap:8px;margin-top:26px}
+.sheet-f .btn{flex:1}
+.set-h{display:flex;align-items:center;justify-content:space-between}
+.sec{margin-top:30px;border-top:1px solid var(--line);padding-top:6px}
+.sec h3{margin:14px 0 4px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.row > span:first-child{min-width:0}
+.row b{display:block;font-weight:600;font-size:.95rem}
+.row small{display:block;color:var(--muted);font-size:.82rem;line-height:1.35;margin-top:2px}
+.row select,.row input[type=time]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 8px}
+.sw{appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.sw:before{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.2,.9,.3,1.3)}
+.sw:checked{background:var(--moss)}
+.sw:checked:before{transform:translateX(20px)}
+.step{display:flex;align-items:center;gap:4px;flex:none}
+.step button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);font-size:1.1rem}
+.step button:hover{background:var(--soft)}
+.step output{width:28px;text-align:center;font:400 1.4rem var(--serif)}
+.code{font:600 1.05rem ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em;background:var(--surface);border:1px dashed var(--faint);border-radius:12px;padding:12px;text-align:center;margin:8px 0;user-select:all;overflow-wrap:anywhere}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.btns .btn{padding:9px 16px;font-size:.88rem}
+.danger{color:var(--stress)!important}
+
+/* ---------- Koppelen ---------- */
+.pair{display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:center;margin:14px 0 4px}
+.pair b{display:block;font-weight:600;font-size:.95rem}
+.pair small{display:block;color:var(--muted);font-size:.84rem;line-height:1.4;margin-top:4px}
+.qr{width:132px;height:132px;border-radius:14px;border:1px solid var(--line);display:block}
+.wmark{width:46px;height:46px;color:var(--moss);margin-bottom:14px}
+.wmark .dot{transform-origin:12px 12px;animation:drift 7s ease-in-out infinite}
+#welcome h2{font-size:2rem}
+.choice{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:10px;transition:border-color .15s,transform .15s}
+.choice:hover{border-color:var(--ink);transform:translateY(-1px)}
+.choice:disabled{opacity:.6}
+.choice b{display:block;font:500 1.15rem var(--serif)}
+.choice small{display:block;color:var(--muted);font-size:.86rem;margin-top:2px}
+.skip{display:block;margin:14px auto 0;color:var(--muted)}
+#wCode,#sCode{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.03em;text-transform:uppercase}
+@media (max-width:380px){.pair{grid-template-columns:1fr}.qr{margin:0 auto}}
+
+/* ---------- Quote-melding en korte berichtjes ---------- */
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 28px);max-width:460px;max-height:60vh;overflow:auto;background:var(--ink);color:var(--paper);border-radius:22px;padding:22px 46px 18px 24px;z-index:20;cursor:pointer;animation:rise .55s cubic-bezier(.2,.9,.3,1.2)}
+.toast:before{content:'“';position:absolute;left:18px;top:-4px;font:400 3.4rem var(--serif);color:var(--lime);line-height:1}
+.toast .qt{font:italic 400 1.3rem/1.38 var(--serif);padding-top:14px}
+.toast small{display:block;color:var(--faint);margin-top:8px;font-size:.8rem}
+.toast .x{position:absolute;top:10px;right:10px;color:var(--faint)}
+.toast .x:hover{background:rgba(255,255,255,.12);color:#fff}
+@keyframes rise{from{opacity:0;transform:translate(-50%,24px) scale(.96)}}
+.snack{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:40;max-width:calc(100% - 28px);text-align:center;animation:fade .25s}
+@media (min-width:860px){.toast{bottom:30px}}
+@media (prefers-reduced-motion:reduce){*,::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M17.4 9.4A6.6 6.6 0 1 1 12.4 6"/><circle class="dot" cx="19" cy="5" r="1.7" fill="currentColor" stroke="none"/></svg>
+    Headspace
+  </div>
+  <nav class="nav" id="nav" aria-label="Onderdelen">
+    <button data-tab="cal" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agenda</button>
+    <button data-tab="recent"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Gedachten</button>
+    <button data-tab="flags"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V4M6 5h12l-2.5 4 2.5 4H6"/></svg>Flags</button>
+    <button data-tab="goals"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/></svg>Doelen</button>
+    <button data-tab="stats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.5-6 4.5 12 2.5-6H21"/></svg>Headspace</button>
+  </nav>
+  <div class="actions">
+    <button class="pill" id="ciBtn">Check-in</button>
+    <button class="gear" id="gear" aria-label="Instellingen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <i id="syncDot"></i>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- Agenda: kalender + de gekozen dag -->
+  <section id="v-cal" class="cal">
+    <div class="month">
+      <div class="month-h">
+        <h2 id="mTitle"></h2>
+        <div>
+          <button class="arrow" id="prev" aria-label="Vorige maand">‹</button>
+          <button class="textbtn" id="todayBtn">Vandaag</button>
+          <button class="arrow" id="next" aria-label="Volgende maand">›</button>
+        </div>
+      </div>
+      <div class="grid" id="dows"></div>
+      <div class="grid" id="days"></div>
+    </div>
+    <div>
+      <h1 id="dayTitle"></h1>
+      <p class="sub" id="daySub"></p>
+      <div class="composer">
+        <div id="editor" class="rt" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Nieuwe gedachte" data-ph="Wat wil je loslaten?"></div>
+        <input id="flagInput" placeholder="Flags, bv. sport, school" autocomplete="off" autocapitalize="off" aria-label="Flags">
+        <div id="suggest"></div>
+        <div class="composer-f">
+          <div class="tb" id="tb">
+            <button data-cmd="bold" aria-label="Vet (Ctrl+B)" tabindex="-1"><b>B</b></button>
+            <button data-cmd="italic" aria-label="Cursief (Ctrl+I)" tabindex="-1"><i>I</i></button>
+            <button data-cmd="underline" aria-label="Onderlijnd (Ctrl+U)" tabindex="-1"><u>U</u></button>
+            <button data-cmd="quote" aria-label="Markeer selectie als quote" title="Markeer selectie als quote" tabindex="-1">❝</button>
+          </div>
+          <button class="btn quiet" id="cancel" hidden>Annuleer</button>
+          <button class="btn" id="save">Laat los</button>
+        </div>
+      </div>
+      <div class="notes" id="notes"></div>
+    </div>
+  </section>
+
+  <section id="v-recent" class="narrow" hidden>
+    <h1>Je laatste gedachten</h1>
+    <div id="recent"></div>
+  </section>
+
+  <section id="v-flags" class="narrow" hidden>
+    <button class="back" id="fBack" hidden>‹ Alle flags</button>
+    <h1 id="fTitle">Flags</h1>
+    <div id="fBody" style="margin-top:20px"></div>
+  </section>
+
+  <section id="v-goals" class="two" hidden>
+    <div>
+      <h1>Doelen</h1>
+      <div class="addrow">
+        <input class="field" id="goalIn" placeholder="Wat wil je bereiken?" autocomplete="off" aria-label="Nieuw doel">
+        <input class="field" id="goalDate" type="date" aria-label="Deadline (optioneel)">
+        <button class="btn" id="goalAdd">Voeg toe</button>
+      </div>
+      <div id="goalList"></div>
+    </div>
+    <div>
+      <h1>Trots op</h1>
+      <div class="addrow">
+        <input class="field" id="winIn" placeholder="Een kleine overwinning" autocomplete="off" aria-label="Iets waar je trots op bent">
+        <button class="btn" id="winAdd">Bewaar</button>
+      </div>
+      <div id="winList"></div>
+    </div>
+  </section>
+
+  <section id="v-stats" class="narrow" hidden>
+    <button class="back" id="sBack" hidden>‹ Headspace</button>
+    <div id="stats"></div>
+  </section>
+</main>
+
+<div id="toast" class="toast" hidden role="status"></div>
+<div id="snack" class="snack" hidden role="status"></div>
+
+<dialog id="ci" aria-labelledby="ciT">
+  <div class="sheet">
+    <div class="seg" id="ciMode"><button data-mode="daily">Dagelijks</button><button data-mode="moment">Nu</button></div>
+    <h2 id="ciT"></h2>
+    <p class="sub" id="ciSub"></p>
+    <div id="ciRows"></div>
+    <input class="field" id="ciNote" placeholder="Wat speelt er? (optioneel)" autocomplete="off" style="width:100%;margin-top:22px" hidden>
+    <div class="sheet-f">
+      <button class="btn quiet" id="ciLater">Later</button>
+      <button class="btn" id="ciSave">Bewaar check-in</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="welcome" aria-labelledby="wT">
+  <div class="sheet">
+    <svg class="wmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M17.4 9.4A6.6 6.6 0 1 1 12.4 6"/><circle class="dot" cx="19" cy="5" r="1.7" fill="currentColor" stroke="none"/></svg>
+    <h2 id="wT">Welkom bij Headspace</h2>
+    <div id="wBody"></div>
+  </div>
+</dialog>
+
+<dialog id="set" aria-labelledby="setT">
+  <div class="sheet">
+    <div class="set-h"><h2 id="setT">Instellingen</h2><button class="x" id="setClose" aria-label="Sluit">×</button></div>
+    <div id="setBody"></div>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+  </div>
+</dialog>
+
+<script src="qrcode.js"></script>
+<script>
+/* ============ Headspace ============
+   Alles staat in dit ene bestand. Data zit in localStorage en wordt (als sync aan staat)
+   samengevoegd met de kopie op de server via /api/sync. */
+const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const DOW = ['ma','di','wo','do','vr','za','zo'];
+const WD = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+const METRICS = [
+  { k: 'mood',   n: 'Mood',   lo: 'laag',   hi: 'top',         c: 'var(--mood)' },
+  { k: 'stress', n: 'Stress', lo: 'rustig', hi: 'veel stress', c: 'var(--stress)' },
+  { k: 'sleep',  n: 'Slaap',  lo: 'slecht', hi: 'super',       c: 'var(--sleep)' }
+];
+const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const toKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const label = k => { const [y, m, d] = k.split('-').map(Number); return `${WD[new Date(y, m - 1, d).getDay()]} ${d} ${MONTHS[m - 1]}`; };
+const ago = i => { const d = new Date(); d.setDate(d.getDate() - i); return d; };
+const hhmm = t => new Date(t).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+
+/* ---------- Data ---------- */
+// S = alles wat gesynct wordt. Elk item heeft u (laatst gewijzigd); verwijderd = { id, u, del: 1 }.
+// dev = alleen voor dit toestel (sync-code, of push aan staat, ...).
+const EMPTY = () => ({ notes: {}, entries: {}, goals: {}, wins: {}, settings: { u: 0 } });
+const DEF = { quoteFreq: 'normal', push: { perDay: 2, from: 9, to: 21, checkin: false, checkinAt: '20:30' } };
+const read = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
+let S = { ...EMPTY(), ...read('headspace-v4') };
+let dev = { code: '', lastSync: 0, prompted: '', push: false, ...read('headspace-device') };
+const saveLocal = () => { try { localStorage.setItem('headspace-v4', JSON.stringify(S)); } catch (e) { say('Opslaan op dit toestel is mislukt.'); } };
+const saveDev = () => { try { localStorage.setItem('headspace-device', JSON.stringify(dev)); } catch (e) {} };
+
+const live = c => Object.values(S[c]).filter(x => !x.del);
+const cfg = () => ({ ...DEF, ...S.settings, push: { ...DEF.push, ...(S.settings.push || {}) } });
+let syncTimer;
+function changed() { saveLocal(); pending = true; clearTimeout(syncTimer); syncTimer = setTimeout(sync, 1200); }
+function put(c, rec) { S[c][rec.id] = { ...rec, u: Date.now() }; changed(); }
+function drop(c, id) { S[c][id] = { id, u: Date.now(), del: 1 }; changed(); }
+function setCfg(patch) { S.settings = { ...S.settings, ...patch, u: Date.now() }; changed(); }
+
+// Twee versies samenvoegen: per item wint de laatst gewijzigde (zelfde functie staat in netlify/lib/shared.mjs)
+function merge(a = {}, b = {}) {
+  const out = { settings: (b.settings?.u || 0) > (a.settings?.u || 0) ? b.settings : a.settings || { u: 0 } };
+  for (const c of ['notes', 'entries', 'goals', 'wins']) {
+    out[c] = { ...(a[c] || {}) };
+    for (const id in b[c] || {}) if (!out[c][id] || (b[c][id].u || 0) > (out[c][id].u || 0)) out[c][id] = b[c][id];
+  }
+  return out;
+}
+
+/* ---------- Sync ---------- */
+// Er loopt altijd maximaal één sync tegelijk; wie tijdens een sync vraagt, krijgt de volgende.
+let running = null, queued = null, pending = false;
+async function api(path, body) {
+  const res = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + dev.code }, body: JSON.stringify(body) });
+  if (!res.ok) throw Object.assign(new Error('api'), { status: res.status });
+  return res.json();
+}
+function setDot(state) {
+  $('syncDot').className = dev.code ? state : '';
+  $('gear').setAttribute('aria-label', 'Instellingen' + (!dev.code ? '' : state === 'err' ? ' (sync mislukt)' : ' (gesynchroniseerd)'));
+}
+// mode: 'create' = nieuwe sync starten, 'join' = bestaande code (nooit aanmaken), anders gewone sync
+function sync(mode) {
+  if (!dev.code) return Promise.resolve('skip');
+  if (!running) { running = doSync(mode).finally(() => { running = null; }); return running; }
+  if (!queued) queued = running.then(() => { queued = null; return sync(mode); });
+  return queued;
+}
+async function doSync(mode) {
+  setDot('busy');
+  pending = false; // wijzigingen vanaf nu zitten in de volgende sync
+  try {
+    let res;
+    try { res = await api('/api/sync', { state: S, tz: TZ, create: mode === 'create' }); }
+    catch (e) {
+      // Server kent de code niet meer (bv. nieuwe site): dit toestel heeft alles, dus opnieuw aanmaken
+      if (e.status !== 404 || mode) throw e;
+      res = await api('/api/sync', { state: S, tz: TZ, create: true });
+    }
+    const before = JSON.stringify(S);
+    S = merge(S, res.state);
+    if (JSON.stringify(S) !== before) { saveLocal(); render(); }
+    dev.lastSync = Date.now(); dev.syncErr = 0; saveDev(); setDot('ok');
+    return 'ok';
+  } catch (e) {
+    pending = true; dev.syncErr = (dev.syncErr || 0) + 1; saveDev(); setDot('err');
+    return e.status || 'offline';
+  } finally { if ($('set').open) renderSettings(); }
+}
+function newCode() {
+  const abc = 'ABCDEFGHJKMNPQRSTVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(20));
+  return [...r].map((b, i) => (i && i % 4 === 0 ? '-' : '') + abc[b % abc.length]).join('');
+}
+async function startSync(quiet) {
+  dev.code = newCode();
+  const r = await sync('create');
+  if (r !== 'ok') { dev.code = ''; setDot(''); if (!quiet) say(r === 'offline' ? 'Geen verbinding met de server. Probeer het later opnieuw.' : 'Sync kon niet gestart worden.'); }
+  saveDev(); renderSettings();
+  return r === 'ok';
+}
+async function joinSync(code) {
+  const raw = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (raw.length < 16) { say('Die code is te kort. Kijk hem na op je andere toestel.'); return false; }
+  code = raw.match(/.{1,4}/g).join('-');
+  if (code === dev.code) { say('Dit toestel is al gekoppeld met deze code.'); return true; }
+  const prev = dev.code, endpoint = dev.push ? await currentEndpoint() : null;
+  dev.code = code;
+  const r = await sync('join');
+  if (r !== 'ok') {
+    dev.code = prev; // mislukt: alles blijft zoals het was
+    say(r === 404 ? 'Deze code bestaat niet. Kijk hem na op je andere toestel.' : 'Geen verbinding met de server. Probeer het zo opnieuw.');
+  } else {
+    say('Gekoppeld. Je gedachten staan nu op beide toestellen.');
+    if (prev && endpoint) { // meldingen verhuizen mee naar de nieuwe koppeling
+      fetch('/api/push', { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + prev }, body: JSON.stringify({ action: 'unsubscribe', endpoint }) }).catch(() => {});
+      checkPush();
+    }
+  }
+  saveDev(); setDot(dev.code ? (dev.syncErr ? 'err' : 'ok') : ''); renderSettings();
+  return r === 'ok';
+}
+async function currentEndpoint() {
+  try { return (await (await swReady()).pushManager.getSubscription())?.endpoint || null; } catch (e) { return null; }
+}
+
+/* ---------- Tekst: alleen vet/cursief/onderlijnd/quote toelaten ---------- */
+const OK = { B: 1, STRONG: 1, I: 1, EM: 1, U: 1, BR: 1, DIV: 1, P: 1, MARK: 1 };
+function clean(html) {
+  const body = new DOMParser().parseFromString(html, 'text/html').body;
+  (function walk(el) {
+    [...el.childNodes].forEach(c => {
+      if (c.nodeType === 3) return;
+      if (c.nodeType !== 1 || /^(SCRIPT|STYLE)$/.test(c.tagName)) { c.remove(); return; }
+      walk(c);
+      if (!OK[c.tagName]) { c.replaceWith(...c.childNodes); return; }
+      [...c.attributes].forEach(a => c.removeAttribute(a.name));
+    });
+  })(body);
+  return body.innerHTML;
+}
+const noteHtml = n => n.html ? clean(n.html) : esc(n.text || '').replace(/\n/g, '<br>');
+const words = n => (n.text || '').trim().split(/\s+/).filter(Boolean).length;
+const tags = n => (n.flags || []).map(f => `<button class="tag" data-flag="${esc(f)}">#${esc(f)}</button>`).join('');
+const byNewest = (a, b) => b.date.localeCompare(a.date) || b.time - a.time;
+function noteRow(n, withActs) {
+  return `<article class="note${n.id === freshId ? ' new' : ''}"><time>${hhmm(n.time)}</time><div class="rt">${noteHtml(n)}</div>
+    <div class="meta">${tags(n)}${withActs ? `<span class="acts"><button data-edit="${n.id}">Bewerk</button><button data-del="${n.id}">Verwijder</button></span>` : ''}</div></article>`;
+}
+
+/* ---------- Tabs ---------- */
+let tab = 'cal', view = new Date(), selected = toKey(new Date()), editingId = null, freshId = null;
+let curFlag = null, curMetric = null, range = 7, recentN = 20;
+view.setDate(1);
+function render() {
+  renderCalendar(); renderDay();
+  if (tab === 'recent') renderRecent();
+  if (tab === 'flags') renderFlags();
+  if (tab === 'goals') renderGoals();
+  if (tab === 'stats') renderStats();
+}
+function showTab(name) {
+  const go = () => {
+    tab = name;
+    ['cal', 'recent', 'flags', 'goals', 'stats'].forEach(t => $('v-' + t).hidden = t !== name);
+    document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+    render(); scrollTo(0, 0);
+  };
+  document.startViewTransition ? document.startViewTransition(go) : go();
+}
+$('nav').addEventListener('click', e => {
+  const t = e.target.closest('button')?.dataset.tab;
+  if (!t) return;
+  if (t === 'flags') curFlag = null;
+  if (t === 'stats') curMetric = null;
+  showTab(t);
+});
+function openFlag(f) { curFlag = f; showTab('flags'); }
+function openDay(k) {
+  const [y, m] = k.split('-').map(Number);
+  view = new Date(y, m - 1, 1); selected = k; resetEditor();
+  showTab('cal');
+}
+addEventListener('scroll', () => $('top').classList.toggle('scrolled', scrollY > 4), { passive: true });
+// Klik op een #flag of een dag-kopje werkt overal
+document.querySelector('main').addEventListener('click', e => {
+  const f = e.target.closest('[data-flag]'), d = e.target.closest('[data-day]');
+  if (f) openFlag(f.dataset.flag);
+  if (d) openDay(d.dataset.day);
+});
+
+/* ---------- Agenda ---------- */
+function renderCalendar() {
+  $('mTitle').innerHTML = `${MONTHS[view.getMonth()]} <span>${view.getFullYear()}</span>`;
+  $('dows').innerHTML = DOW.map(d => `<div class="dow">${d}</div>`).join('');
+  const has = new Set(live('notes').map(n => n.date)), today = toKey(new Date());
+  const start = new Date(view); start.setDate(1 - (view.getDay() + 6) % 7);
+  let html = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const k = toKey(d);
+    const cls = ['d', d.getMonth() !== view.getMonth() && 'out', k === today && 'today', k === selected && 'sel'].filter(Boolean).join(' ');
+    html += `<button class="${cls}" data-k="${k}" aria-label="${d.getDate()} ${MONTHS[d.getMonth()]}${has.has(k) ? ', heeft notities' : ''}"${k === selected ? ' aria-current="date"' : ''}>${d.getDate()}${has.has(k) ? '<i></i>' : ''}</button>`;
+  }
+  $('days').innerHTML = html;
+}
+function allFlags() {
+  const all = {};
+  live('notes').forEach(n => (n.flags || []).forEach(f => (all[f] = all[f] || []).push(n)));
+  return all;
+}
+function renderDay() {
+  $('dayTitle').textContent = label(selected);
+  const list = live('notes').filter(n => n.date === selected).sort((a, b) => a.time - b.time);
+  $('daySub').textContent = list.length ? `${list.length} gedachte${list.length > 1 ? 'n' : ''} losgelaten` : 'Nog niets losgelaten';
+  $('notes').innerHTML = list.map(n => noteRow(n, true)).join('');
+  const all = allFlags();
+  $('suggest').innerHTML = Object.keys(all).sort((a, b) => all[b].length - all[a].length).slice(0, 10)
+    .map(f => `<button class="tag" data-add="${esc(f)}">#${esc(f)}</button>`).join('');
+}
+function resetEditor() {
+  editingId = null;
+  $('editor').innerHTML = ''; $('flagInput').value = '';
+  $('save').textContent = 'Laat los'; $('cancel').hidden = true;
+}
+function selectDay(k) { selected = k; resetEditor(); renderCalendar(); renderDay(); }
+function moveMonth(n) { view = new Date(view.getFullYear(), view.getMonth() + n, 1); renderCalendar(); }
+$('days').addEventListener('click', e => {
+  const b = e.target.closest('.d');
+  if (!b) return;
+  const [y, m] = b.dataset.k.split('-').map(Number);
+  if (m - 1 !== view.getMonth()) view = new Date(y, m - 1, 1);
+  selectDay(b.dataset.k);
+});
+$('prev').onclick = () => moveMonth(-1);
+$('next').onclick = () => moveMonth(1);
+$('todayBtn').onclick = () => { view = new Date(); view.setDate(1); selectDay(toKey(new Date())); };
+
+/* ---------- Schrijven: vet / cursief / onderlijnd / quote ---------- */
+// Ctrl+B / Ctrl+I / Ctrl+U werken vanzelf in het tekstvak; de knoppen zijn er voor de gsm.
+$('tb').addEventListener('mousedown', e => e.preventDefault());
+$('tb').addEventListener('click', e => {
+  const c = e.target.closest('button')?.dataset.cmd;
+  if (!c) return;
+  $('editor').focus();
+  if (c === 'quote') toggleQuote(); else document.execCommand(c);
+  updateTb();
+});
+function markAtSelection() {
+  const sel = getSelection();
+  if (!sel.rangeCount || !$('editor').contains(sel.anchorNode)) return null;
+  const el = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+  const m = el.closest('mark');
+  return m && $('editor').contains(m) ? m : null;
+}
+const flagList = () => [...new Set($('flagInput').value.toLowerCase().split(/[,\s]+/).map(f => f.replace(/^#/, '')).filter(Boolean))];
+function addFlag(f) { if (!flagList().includes(f)) $('flagInput').value = flagList().concat(f).join(', '); }
+// Geselecteerde tekst wordt de quote (en de note krijgt de flag 'quote'); nog eens tikken haalt de markering weg
+function toggleQuote() {
+  const m = markAtSelection();
+  if (m) { m.replaceWith(...m.childNodes); return; }
+  const sel = getSelection();
+  if (!sel.rangeCount || sel.isCollapsed || !$('editor').contains(sel.anchorNode)) return say('Selecteer eerst het stukje tekst dat je quote is.');
+  const box = document.createElement('div');
+  box.appendChild(sel.getRangeAt(0).cloneContents());
+  document.execCommand('insertHTML', false, '<mark>' + box.innerHTML + '</mark>');
+  addFlag('quote');
+}
+function updateTb() {
+  document.querySelectorAll('#tb button').forEach(b => {
+    const c = b.dataset.cmd;
+    b.classList.toggle('on', c === 'quote' ? !!markAtSelection() : document.queryCommandState(c));
+  });
+}
+document.addEventListener('selectionchange', () => { if (document.activeElement === $('editor')) updateTb(); });
+$('editor').addEventListener('input', () => { if (!$('editor').innerText.trim()) $('editor').innerHTML = ''; });
+$('editor').addEventListener('paste', e => { // altijd als gewone tekst plakken
+  e.preventDefault();
+  document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+});
+$('editor').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveNote(); });
+$('flagInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveNote(); });
+$('suggest').addEventListener('click', e => { if (e.target.dataset.add) addFlag(e.target.dataset.add); });
+
+function saveNote() {
+  const text = $('editor').innerText.trim();
+  if (!text) return $('editor').focus();
+  const html = clean($('editor').innerHTML), flags = flagList();
+  if (editingId) {
+    put('notes', { ...S.notes[editingId], text, html, flags });
+  } else {
+    // de tekst stijgt op uit het tekstvak
+    const r = $('editor').getBoundingClientRect(), g = document.createElement('div');
+    g.className = 'ghost rt'; g.innerHTML = html;
+    g.style.cssText = `left:${r.left - 6}px;top:${r.top}px;width:${r.width + 12}px`;
+    document.body.append(g); setTimeout(() => g.remove(), 1300);
+    freshId = uid();
+    put('notes', { id: freshId, date: selected, text, html, flags, time: Date.now() });
+  }
+  resetEditor(); renderCalendar(); renderDay();
+  freshId = null; scheduleQuote();
+}
+$('save').onclick = saveNote;
+$('cancel').onclick = resetEditor;
+$('notes').addEventListener('click', e => {
+  const { del, edit } = e.target.dataset;
+  if (del && confirm('Deze notitie verwijderen?')) { drop('notes', del); if (editingId === del) resetEditor(); renderCalendar(); renderDay(); }
+  if (edit) {
+    const n = S.notes[edit];
+    editingId = edit;
+    $('editor').innerHTML = noteHtml(n);
+    $('flagInput').value = (n.flags || []).join(', ');
+    $('save').textContent = 'Bewaar wijziging'; $('cancel').hidden = false;
+    $('editor').focus(); $('editor').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+});
+
+/* ---------- Gedachten: je laatste notities ---------- */
+function grouped(list) {
+  let html = '', last = '';
+  list.forEach(n => {
+    if (n.date !== last) { html += `<div class="dayhead"><button data-day="${n.date}">${label(n.date)} ${n.date.slice(0, 4)}</button></div>`; last = n.date; }
+    html += noteRow(n);
+  });
+  return html;
+}
+function renderRecent() {
+  const all = live('notes').sort(byNewest);
+  $('recent').innerHTML = all.length
+    ? grouped(all.slice(0, recentN)) + (all.length > recentN ? '<button class="btn quiet more" id="moreBtn">Toon oudere gedachten</button>' : '')
+    : '<div class="empty">Nog niets losgelaten. Begin in de agenda.</div>';
+}
+$('recent').addEventListener('click', e => { if (e.target.id === 'moreBtn') { recentN += 20; renderRecent(); } });
+
+/* ---------- Flags ---------- */
+function renderFlags() {
+  const all = allFlags();
+  $('fBack').hidden = !curFlag;
+  if (!curFlag) {
+    $('fTitle').textContent = 'Flags';
+    const names = Object.keys(all).sort();
+    $('fBody').innerHTML = names.length
+      ? names.map(f => `<button class="frow" data-flag="${esc(f)}"><b>${esc(f)}</b><span>${all[f].length} ${all[f].length === 1 ? 'notitie' : 'notities'}</span></button>`).join('')
+      : '<div class="empty">Nog geen flags. Geef er een mee als je iets loslaat.</div>';
+    return;
+  }
+  $('fTitle').textContent = '#' + curFlag;
+  const items = (all[curFlag] || []).sort(byNewest);
+  const hint = curFlag === 'quote' ? '<p class="sub">Dit zijn je quotes. Markeer met ❝ welk stuk van een notitie de quote is. Hoe vaak ze opduiken stel je in via het tandwiel.</p>' : '';
+  $('fBody').innerHTML = hint + (items.length ? grouped(items) : '<div class="empty">Geen notities met deze flag.</div>');
+}
+$('fBack').onclick = () => { curFlag = null; renderFlags(); };
+
+/* ---------- Doelen en trots ---------- */
+function renderGoals(fresh) {
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const goals = live('goals').sort((a, b) => (a.due || '9').localeCompare(b.due || '9') || a.time - b.time);
+  $('goalList').innerHTML = goals.length ? goals.map(g => {
+    let d = '', late = false;
+    if (g.due) {
+      const n = Math.round((new Date(g.due + 'T00:00') - now) / 864e5);
+      late = n < 0;
+      d = late ? 'deadline voorbij' : n === 0 ? 'vandaag' : `nog ${n} dag${n > 1 ? 'en' : ''}`;
+    }
+    return `<div class="goal"><button class="circ" data-done="${g.id}" aria-label="Doel bereikt"></button><div>${esc(g.text)}${d ? `<small class="${late ? 'late' : ''}">${d}</small>` : ''}</div><button class="x" data-gdel="${g.id}" aria-label="Verwijder">×</button></div>`;
+  }).join('') : '<div class="empty">Nog geen doelen. Wat wil je bereiken?</div>';
+  const wins = live('wins').sort(byNewest);
+  $('winList').innerHTML = wins.length ? wins.map(w =>
+    `<div class="win${w.id === fresh ? ' new' : ''}"><div>${esc(w.text)}<small>${w.goal ? 'Doel bereikt, ' : ''}${label(w.date)}</small></div><button class="x" data-wdel="${w.id}" aria-label="Verwijder">×</button></div>`
+  ).join('') : '<div class="empty">Ook kleine dingen tellen. Wat ging er vandaag goed?</div>';
+}
+function addWin(text, goal) {
+  const id = uid();
+  put('wins', { id, text, date: toKey(new Date()), time: Date.now(), ...(goal ? { goal: true } : {}) });
+  renderGoals(id);
+}
+function addGoal() {
+  const text = $('goalIn').value.trim();
+  if (!text) return $('goalIn').focus();
+  put('goals', { id: uid(), text, due: $('goalDate').value || '', time: Date.now() });
+  $('goalIn').value = ''; $('goalDate').value = '';
+  renderGoals();
+}
+$('goalAdd').onclick = addGoal;
+$('goalIn').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+const winFromInput = () => { const t = $('winIn').value.trim(); if (!t) return $('winIn').focus(); $('winIn').value = ''; addWin(t); };
+$('winAdd').onclick = winFromInput;
+$('winIn').addEventListener('keydown', e => { if (e.key === 'Enter') winFromInput(); });
+$('v-goals').addEventListener('click', e => {
+  const { done, gdel, wdel } = e.target.dataset;
+  if (done) { const g = S.goals[done]; drop('goals', done); addWin(g.text, true); } // bereikt doel = iets om trots op te zijn
+  if (gdel && confirm('Dit doel verwijderen?')) { drop('goals', gdel); renderGoals(); }
+  if (wdel && confirm('Dit verwijderen?')) { drop('wins', wdel); renderGoals(); }
+});
+
+/* ---------- Check-ins: dagelijks + momentopnames ---------- */
+// Eén check-in = { id, date, time, type: 'daily' | 'moment', mood, stress, sleep?, note? }
+let ciMode = 'daily';
+const hasDaily = k => { const e = S.entries['d' + k]; return !!e && !e.del; };
+$('ciRows').innerHTML = METRICS.map(m => `
+  <fieldset class="scale" id="cr-${m.k}" style="--c:${m.c}"><legend>${m.n}<output id="co-${m.k}"></output></legend>
+  <div class="pips">${[...Array(10)].map((_, i) => `<label><input type="radio" name="ci-${m.k}" value="${i + 1}" aria-label="${m.n} ${i + 1}"><span>${i + 1}</span></label>`).join('')}</div>
+  <div class="ends"><span>${m.lo}</span><span>${m.hi}</span></div></fieldset>`).join('');
+const ciVal = k => Number(document.querySelector(`input[name=ci-${k}]:checked`)?.value || 0);
+const ciNeeded = () => METRICS.filter(m => ciMode === 'daily' || m.k !== 'sleep');
+function ciRefresh() {
+  METRICS.forEach(m => $('co-' + m.k).textContent = ciVal(m.k) || '');
+  $('ciSave').disabled = !ciNeeded().every(m => ciVal(m.k));
+}
+$('ciRows').addEventListener('change', ciRefresh);
+function setMode(mode) {
+  ciMode = mode;
+  const daily = mode === 'daily', cur = daily ? S.entries['d' + toKey(new Date())] : null;
+  document.querySelectorAll('#ciMode button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+  $('ciT').textContent = daily ? 'Hoe is het vandaag?' : 'Hoe voel je je nu?';
+  $('ciSub').textContent = daily ? 'Je dagelijkse check-in, met hoe je sliep.' : 'Een momentopname. Zoveel als je wil, zo zie je je pieken en dalen.';
+  $('cr-sleep').hidden = !daily;
+  $('ciNote').hidden = daily; $('ciNote').value = '';
+  METRICS.forEach(m => document.querySelectorAll(`input[name=ci-${m.k}]`).forEach(i => i.checked = !!cur && !cur.del && Number(i.value) === cur[m.k]));
+  ciRefresh();
+}
+function openCheckin(mode) { setMode(mode || (hasDaily(toKey(new Date())) ? 'moment' : 'daily')); if (!$('ci').open) $('ci').showModal(); }
+$('ciBtn').onclick = () => openCheckin();
+$('ciLater').onclick = () => $('ci').close();
+$('ciMode').addEventListener('click', e => { if (e.target.dataset.mode) setMode(e.target.dataset.mode); });
+$('ciSave').onclick = () => {
+  const k = toKey(new Date()), now = Date.now(), vals = {};
+  ciNeeded().forEach(m => vals[m.k] = ciVal(m.k));
+  const note = $('ciNote').value.trim();
+  if (ciMode === 'daily') put('entries', { id: 'd' + k, date: k, time: now, type: 'daily', ...vals }); // één per dag
+  else put('entries', { id: 'm' + uid(), date: k, time: now, type: 'moment', ...vals, ...(note ? { note } : {}) });
+  $('ci').close();
+  say('Check-in bewaard.');
+  if (tab === 'stats') renderStats();
+};
+// sluiten door naast een venster te klikken
+document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+
+/* ---------- Headspace: statistieken ---------- */
+// "Headspace vrijgemaakt" = aantal woorden dat je hebt losgelaten.
+function renderStats() {
+  $('sBack').hidden = !curMetric;
+  if (curMetric) return renderMetric();
+  const notes = live('notes'), byDay = {};
+  notes.forEach(n => (byDay[n.date] = byDay[n.date] || []).push(n));
+  const dayWords = k => (byDay[k] || []).reduce((s, n) => s + words(n), 0);
+  const week = [...Array(7)].map((_, i) => ago(6 - i)), keys = week.map(toKey);
+  const perDay = keys.map(dayWords), total = perDay.reduce((a, b) => a + b, 0);
+  const prev = [...Array(7)].reduce((s, _, i) => s + dayWords(toKey(ago(7 + i))), 0);
+  const active = perDay.filter(Boolean).length, count = keys.reduce((s, k) => s + (byDay[k] || []).length, 0);
+  let streak = 0;
+  for (let i = dayWords(toKey(new Date())) ? 0 : 1; dayWords(toKey(ago(i))) > 0; i++) streak++;
+
+  const flagW = {};
+  let noFlag = 0;
+  keys.forEach(k => (byDay[k] || []).forEach(n => {
+    if (!(n.flags || []).length) noFlag += words(n);
+    (n.flags || []).forEach(f => flagW[f] = (flagW[f] || 0) + words(n));
+  }));
+  const rows = Object.entries(flagW).sort((a, b) => b[1] - a[1]).slice(0, 6), maxF = rows.length ? rows[0][1] : 1;
+  const diff = total - prev;
+
+  // Eén bol per dag: hoe groter, hoe meer je die dag losliet
+  const maxD = Math.max(...perDay, 1), W = 700, H = 170;
+  const bubbles = week.map((d, i) => {
+    const x = 50 + i * 100, r = perDay[i] ? 10 + 38 * Math.sqrt(perDay[i] / maxD) : 0;
+    return (r ? `<circle class="b" cx="${x}" cy="72" r="${r.toFixed(1)}" style="animation-delay:${i * 70}ms"${i === 6 ? ' fill-opacity="1"' : ' fill-opacity=".82"'}/>` : `<circle cx="${x}" cy="72" r="5" fill="none" stroke="var(--faint)" stroke-width="1.5"/>`)
+      + `<text x="${x}" y="142" text-anchor="middle" font-size="15" fill="var(--ink)" font-weight="${i === 6 ? 700 : 400}">${DOW[(d.getDay() + 6) % 7]}</text>`
+      + `<text x="${x}" y="162" text-anchor="middle" font-size="13" fill="var(--muted)">${perDay[i] || ''}</text>`;
+  }).join('');
+
+  $('stats').innerHTML = `
+    <p class="lead">${total
+      ? `Deze week liet je <b>${total} woorden</b> los in ${count} gedachte${count === 1 ? '' : 'n'}, op ${active} van de 7 dagen.`
+      : 'Deze week heb je nog niets losgelaten. Eén zin in de agenda is genoeg om te beginnen.'}</p>
+    <p class="sub">${[prev ? `${diff >= 0 ? '+' : ''}${diff} woorden tegenover de week ervoor` : '', streak > 1 ? `${streak} dagen op rij` : ''].filter(Boolean).join(', ')}</p>
+    <svg class="bubbles" viewBox="0 0 ${W} ${H}" role="img" aria-label="Woorden losgelaten per dag: ${week.map((d, i) => DOW[(d.getDay() + 6) % 7] + ' ' + perDay[i]).join(', ')}">${bubbles}</svg>
+
+    <h3>Hoe je je voelde</h3>
+    ${metricsBlock(keys)}
+    ${combinedBlock()}
+
+    <h3>Waar ruimte is vrijgekomen</h3>
+    ${rows.length ? rows.map(([f, w], i) => `<button class="hbar" data-flag="${esc(f)}"><div><b>#${esc(f)}</b><span>${w} woorden</span></div><div class="t"><i style="width:${w / maxF * 100}%;animation-delay:${i * 60}ms"></i></div></button>`).join('') : '<div class="empty">Geen flags gebruikt in de laatste 7 dagen.</div>'}
+    ${noFlag ? `<p class="sub">plus ${noFlag} woorden zonder flag</p>` : ''}`;
+}
+$('stats').addEventListener('click', e => {
+  const mt = e.target.closest('[data-metric]'), rg = e.target.closest('[data-range]');
+  if (mt) { curMetric = mt.dataset.metric; renderStats(); scrollTo(0, 0); }
+  else if (rg) { range = Number(rg.dataset.range); renderStats(); }
+});
+$('sBack').onclick = () => { curMetric = null; renderStats(); };
+
+// Per dag: gemiddelde, hoogste en laagste waarde van één metric
+function dayStats(m, keys) {
+  const by = {};
+  live('entries').forEach(e => { if (e[m] != null) (by[e.date] = by[e.date] || []).push(e[m]); });
+  return keys.map(k => {
+    const v = by[k];
+    return v ? { avg: v.reduce((a, b) => a + b, 0) / v.length, min: Math.min(...v), max: Math.max(...v) } : null;
+  });
+}
+const avgOf = ds => { const v = ds.filter(Boolean).map(x => x.avg); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+function spark(vals, color) {
+  const W = 140, H = 48;
+  const pts = vals.map((v, i) => v == null ? null : [8 + i * (W - 16) / 6, H - 6 - (v - 1) / 9 * (H - 12)]);
+  let path = '';
+  pts.forEach(p => { if (p) path += (path ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="48" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(p => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${color}"/>` : '').join('')}</svg>`;
+}
+function metricsBlock(keys) {
+  const prevKeys = [...Array(7)].map((_, i) => toKey(ago(13 - i)));
+  if (!METRICS.some(m => dayStats(m.k, keys).some(Boolean)))
+    return '<div class="empty">Doe een check-in om hier je mood, stress en slaap te zien.</div>';
+  return '<p class="sub" style="margin:0 0 10px">Tik op een kaartje voor het verloop.</p><div class="metrics">' + METRICS.map(m => {
+    const ds = dayStats(m.k, keys), a = avgOf(ds), p = avgOf(dayStats(m.k, prevKeys));
+    const note = a != null && p != null ? `${a - p >= 0 ? '+' : ''}${(a - p).toFixed(1)} tegenover vorige week` : 'gemiddelde, 7 dagen';
+    return `<button class="metric" data-metric="${m.k}"><span>${m.n}</span><b>${a == null ? '–' : a.toFixed(1)}</b>${spark(ds.map(x => x && x.avg), m.c)}<small>${note}</small></button>`;
+  }).join('') + '</div>';
+}
+const rangeChips = () => '<div class="chips">' + [7, 30, 90].map(r => `<button class="chip ${r === range ? 'on' : ''}" data-range="${r}">${r} dagen</button>`).join('') + '</div>';
+// Legende: gevulde bolletjes = dagelijks, holle = momentopname
+function legend(ms) {
+  return '<div class="legend">' + (ms.length > 1 ? ms.map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join('') : '') +
+    '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="currentColor"/></svg>dagelijkse check-in</span>' +
+    '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>momentopname</span></div>';
+}
+// Eén grafiek voor één of meer metrics. detail = balkjes (laag tot hoog per dag) en ringen rond de uitschieters
+function drawChart(ms, days, keys, detail) {
+  const n = days.length, W = 600, H = 270, L = 30, R = 10, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
+  const y = v => T + (10 - v) / 9 * ph, cx = i => L + (i + .5) / n * pw;
+  const ex = e => { const d = new Date(e.time); return L + (keys.indexOf(e.date) + (d.getHours() * 60 + d.getMinutes()) / 1440) / n * pw; };
+  const step = n === 7 ? 1 : n === 30 ? 5 : 15, bw = Math.min(18, pw / n * .5);
+  const rd = n > 30 ? 3.5 : 5, rm = n > 30 ? 2.5 : 3.6;
+  let g = [1, 4, 7, 10].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--soft)"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`).join('');
+  g += days.map((d, i) => i % step ? '' : `<text x="${cx(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${n === 7 ? DOW[(d.getDay() + 6) % 7] : d.getDate() + '/' + (d.getMonth() + 1)}</text>`).join('');
+  ms.forEach(m => {
+    const ds = dayStats(m.k, keys), es = live('entries').filter(e => e[m.k] != null && keys.includes(e.date));
+    if (detail) g += ds.map((d, i) => d && d.max > d.min ? `<rect x="${cx(i) - bw / 2}" y="${y(d.max) - bw / 2}" width="${bw}" height="${y(d.min) - y(d.max) + bw}" rx="${bw / 2}" fill="${m.c}" fill-opacity=".2"/>` : '').join('');
+    let line = '';
+    ds.forEach((d, i) => { if (d) line += (line ? 'L' : 'M') + cx(i).toFixed(1) + ' ' + y(d.avg).toFixed(1); });
+    g += `<path d="${line}" fill="none" stroke="${m.c}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+    es.filter(e => e.type !== 'daily').forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rm}" fill="var(--surface)" stroke="${m.c}" stroke-width="1.8"/>`);
+    es.filter(e => e.type === 'daily').forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rd}" fill="${m.c}" stroke="var(--surface)" stroke-width="2"/>`);
+    if (detail && es.length) {
+      const hi = es.reduce((a, e) => e[m.k] >= a[m.k] ? e : a), lo = es.reduce((a, e) => e[m.k] < a[m.k] ? e : a);
+      [hi, lo].forEach(e => g += `<circle cx="${ex(e).toFixed(1)}" cy="${y(e[m.k]).toFixed(1)}" r="${rd + 3.5}" fill="none" stroke="${m.c}" stroke-width="2"/>`);
+    }
+  });
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Verloop van ${ms.map(m => m.n).join(', ')}">${g}</svg></div>`;
+}
+const rangeDays = () => { const days = [...Array(range)].map((_, i) => ago(range - 1 - i)); return { days, keys: days.map(toKey) }; };
+// Mood, stress en slaap samen in één grafiek
+function combinedBlock() {
+  if (!live('entries').length) return '';
+  const { days, keys } = rangeDays();
+  const has = live('entries').some(e => keys.includes(e.date));
+  return `<h3>Alles samen</h3>${rangeChips()}` + (has
+    ? `${drawChart(METRICS, days, keys, false)}${legend(METRICS)}<p class="sub">De lijnen zijn het gemiddelde per dag. Bij stress is lager beter.</p>`
+    : '<div class="empty">Nog geen check-ins in deze periode.</div>');
+}
+// Detail van één metric
+function renderMetric() {
+  const m = METRICS.find(x => x.k === curMetric), { days, keys } = rangeDays();
+  const ds = dayStats(m.k, keys);
+  const inR = live('entries').filter(e => e[m.k] != null && keys.includes(e.date)).sort((a, b) => a.time - b.time);
+  const head = `<h1>${m.n}</h1><p class="sub" style="margin-bottom:18px">laatste ${range} dagen</p>${rangeChips()}`;
+  if (!inR.length) { $('stats').innerHTML = head + '<div class="empty">Nog geen check-ins in deze periode.</div>'; return; }
+  const hi = inR.reduce((a, e) => e[m.k] >= a[m.k] ? e : a), lo = inR.reduce((a, e) => e[m.k] < a[m.k] ? e : a);
+  const fmt = e => { const d = new Date(e.time); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const rows = inR.slice().reverse().slice(0, 10).map(e =>
+    `<div class="erow"><b>${e[m.k]}</b><div><small>${fmt(e)}, ${e.type === 'daily' ? 'dagelijks' : 'momentopname'}</small>${e.note ? `<div>${esc(e.note)}</div>` : ''}</div></div>`).join('');
+  $('stats').innerHTML = `${head}${drawChart([m], days, keys, true)}${legend([m])}
+    <p class="sub">De lijn is het gemiddelde van de dag. Het balkje loopt van je laagste tot je hoogste moment, de ringen markeren de uitschieters.${m.k === 'sleep' ? ' Slaap komt alleen uit je dagelijkse check-in.' : ''}</p>
+    <div class="facts">
+      <div class="fact"><b>${avgOf(ds).toFixed(1)}</b><span>gemiddelde</span></div>
+      <div class="fact"><b>${hi[m.k]}</b><span>hoogste, ${fmt(hi)}</span></div>
+      <div class="fact"><b>${lo[m.k]}</b><span>laagste, ${fmt(lo)}</span></div>
+      <div class="fact"><b>${inR.length}</b><span>check-ins</span></div>
+    </div>
+    <h3>Recent</h3>${rows}`;
+}
+
+/* ---------- Quotes: notes met de flag 'quote' (of 'les') ---------- */
+// Is een stuk tekst gemarkeerd (knop ❝), dan is dat de quote. Anders telt de hele note.
+const FREQ = { off: null, rare: [15, 40], normal: [4, 12], often: [1, 4] }; // minuten tussen quotes in de app
+let lastQ = null, toastTimer, nextTimer, snackTimer;
+function quotePool() {
+  const pool = [];
+  live('notes').forEach(n => {
+    if (!(n.flags || []).some(f => f === 'quote' || f === 'les')) return;
+    const marks = [...new DOMParser().parseFromString(noteHtml(n), 'text/html').querySelectorAll('mark')].map(m => m.textContent.trim()).filter(Boolean);
+    (marks.length ? marks : [(n.text || '').trim()]).filter(Boolean).forEach((t, i) => pool.push({ id: n.id + '-' + i, text: t, date: n.date }));
+  });
+  return pool;
+}
+function showQuote() {
+  const all = quotePool();
+  if (!all.length) return false;
+  const pool = all.length > 1 ? all.filter(q => q.id !== lastQ) : all; // niet twee keer dezelfde na elkaar
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  lastQ = q.id;
+  $('toast').innerHTML = `<button class="x" aria-label="Sluiten">×</button><div class="qt">${esc(q.text)}</div><small>uit je notitie van ${label(q.date)}</small>`;
+  $('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').hidden = true, 15000);
+  return true;
+}
+function fireQuote() {
+  const a = document.activeElement;
+  const busy = document.hidden || document.querySelector('dialog[open]') || (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable));
+  if (busy) { nextTimer = setTimeout(fireQuote, 60000); return; } // later opnieuw proberen
+  showQuote(); scheduleQuote();
+}
+function scheduleQuote() {
+  clearTimeout(nextTimer);
+  const f = FREQ[cfg().quoteFreq];
+  if (f) nextTimer = setTimeout(fireQuote, (f[0] + Math.random() * (f[1] - f[0])) * 60000);
+}
+$('toast').addEventListener('click', () => { $('toast').hidden = true; });
+function say(msg) {
+  $('snack').textContent = msg; $('snack').hidden = false;
+  clearTimeout(snackTimer); snackTimer = setTimeout(() => $('snack').hidden = true, 3800);
+}
+
+/* ---------- Pushmeldingen (ook als de app dicht is) ---------- */
+const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const swReady = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('sw')), 5000))]);
+const b64ToBytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function enablePush() {
+  if (!pushSupported) return say('Deze browser ondersteunt geen pushmeldingen.');
+  if (!dev.code && !(await startSync())) return; // meldingen hebben sync nodig
+  if (await Notification.requestPermission() !== 'granted') return say('Meldingen zijn geblokkeerd. Laat ze toe in de site-instellingen van je browser.');
+  try {
+    await subscribeDevice();
+    dev.push = true; saveDev(); say('Meldingen staan aan op dit toestel.');
+  } catch (e) { say('Meldingen aanzetten is mislukt. Probeer het opnieuw.'); }
+}
+// Meldt dit toestel aan bij de server. Een oud abonnement met een andere sleutel wordt vervangen.
+async function subscribeDevice() {
+  const reg = await swReady();
+  const res = await fetch('/api/push');
+  if (!res.ok) throw new Error('key');
+  const key = b64ToBytes((await res.json()).key);
+  let sub = await reg.pushManager.getSubscription();
+  const old = sub?.options?.applicationServerKey && new Uint8Array(sub.options.applicationServerKey);
+  if (sub && !(old && old.length === key.length && old.every((b, i) => b === key[i]))) { await sub.unsubscribe(); sub = null; }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+  await api('/api/push', { action: 'subscribe', sub: sub.toJSON(), tz: TZ });
+}
+// Bij elke start: staat push aan, kijk dan of het abonnement nog klopt (toestemming ingetrokken, verlopen, ...)
+async function checkPush() {
+  if (!dev.push || !dev.code || !pushSupported) return;
+  if (Notification.permission !== 'granted') { dev.push = false; saveDev(); return; }
+  try { await subscribeDevice(); } catch (e) {}
+}
+async function disablePush() {
+  try {
+    const sub = await (await swReady()).pushManager.getSubscription();
+    if (sub) { await api('/api/push', { action: 'unsubscribe', endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); }
+  } catch (e) {}
+  dev.push = false; saveDev();
+}
+
+/* ---------- QR-code om te koppelen ---------- */
+const pairLink = () => `${location.origin}/#code=${dev.code}`;
+function qrSvg(text) {
+  if (typeof qrcode !== 'function') return '';
+  const q = qrcode(0, 'M'); q.addData(text); q.make();
+  const n = q.getModuleCount();
+  let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg class="qr" viewBox="-3 -3 ${n + 6} ${n + 6}" role="img" aria-label="QR-code om een ander toestel te koppelen" shape-rendering="crispEdges"><rect x="-3" y="-3" width="${n + 6}" height="${n + 6}" fill="#fff"/><path d="${d}" fill="#16221B"/></svg>`;
+}
+// QR + code + knoppen: gebruikt in het welkomstscherm en in de instellingen
+function pairBlock() {
+  const phone = matchMedia('(pointer: coarse)').matches;
+  const txt = phone
+    ? '<b>Koppel je computer</b><small>Stuur jezelf de koppellink (bv. via mail of WhatsApp) en open hem op je computer. Of typ daar de code hieronder.</small>'
+    : '<b>Scan met de camera van je gsm</b><small>Je gsm opent Headspace en is meteen gekoppeld. Lukt scannen niet? Typ de code hieronder op je gsm.</small>';
+  return `<div class="pair">${qrSvg(pairLink())}<div>${txt}</div></div>
+    <div class="code">${esc(dev.code)}</div>
+    <div class="btns"><button class="btn${phone ? '' : ' quiet'}" data-pair="share">Deel koppellink</button><button class="btn quiet" data-pair="copy">Kopieer code</button></div>`;
+}
+document.addEventListener('click', async e => {
+  const a = e.target.closest('[data-pair]')?.dataset.pair;
+  if (a === 'copy') { await navigator.clipboard.writeText(dev.code).catch(() => {}); say('Code gekopieerd.'); }
+  if (a === 'share') {
+    if (navigator.share) navigator.share({ title: 'Headspace koppelen', text: 'Open deze link op je andere toestel om Headspace te koppelen.', url: pairLink() }).catch(() => {});
+    else { await navigator.clipboard.writeText(pairLink()).catch(() => {}); say('Koppellink gekopieerd. Open hem op je andere toestel.'); }
+  }
+});
+
+/* ---------- Welkomstscherm (eerste keer) ---------- */
+function welcome(step) {
+  const b = $('wBody');
+  if (step === 'choose') b.innerHTML = `
+    <p class="sub">Gebruik je Headspace op je gsm én je computer? Koppel ze, dan staan je gedachten, check-ins en doelen overal.</p>
+    <button class="choice" data-w="new"><b>Dit is mijn eerste toestel</b><small>Je krijgt een QR-code om je andere toestel te koppelen.</small></button>
+    <button class="choice" data-w="join"><b>Ik gebruik Headspace al op een ander toestel</b><small>Haal je bestaande gedachten naar hier.</small></button>
+    <button class="textbtn skip" data-w="skip">Begin zonder koppelen</button>`;
+  if (step === 'started') b.innerHTML = `
+    <p class="sub">Sync staat aan. Koppel nu je andere toestel, dat kan ook later via het tandwiel.</p>
+    ${pairBlock()}
+    <div class="sheet-f"><button class="btn" data-w="done">Begin met schrijven</button></div>`;
+  if (step === 'join') b.innerHTML = `
+    <p class="sub">Tik op je andere toestel op het tandwiel rechtsboven. Daar staat een QR-code: scan die met de camera van dit toestel. Of typ de code hieronder.</p>
+    <div class="addrow"><input class="field" id="wCode" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn" data-w="joinGo">Koppel</button></div>
+    <button class="textbtn skip" data-w="choose">‹ Terug</button>`;
+  if (step === 'offline') b.innerHTML = `
+    <p class="sub">De sync-server is nu niet bereikbaar. Je kan gewoon beginnen: alles wordt op dit toestel bewaard. Koppelen kan later via het tandwiel.</p>
+    <div class="sheet-f"><button class="btn" data-w="done">Begin met schrijven</button></div>`;
+  if (!$('welcome').open) $('welcome').showModal();
+}
+$('welcome').addEventListener('click', async e => {
+  const w = e.target.closest('[data-w]')?.dataset.w;
+  if (!w) return;
+  if (w === 'new') { e.target.closest('button').disabled = true; welcome(await startSync(true) ? 'started' : 'offline'); }
+  if (w === 'join' || w === 'choose') welcome(w);
+  if (w === 'joinGo' && await joinSync($('wCode').value)) $('welcome').close();
+  if (w === 'skip' || w === 'done') $('welcome').close();
+});
+$('welcome').addEventListener('keydown', async e => { if (e.key === 'Enter' && e.target.id === 'wCode' && await joinSync(e.target.value)) $('welcome').close(); });
+$('welcome').addEventListener('close', () => { dev.welcomed = true; saveDev(); maybePrompt(); });
+
+/* ---------- Instellingen (tandwiel) ---------- */
+function renderSettings() {
+  const c = cfg(), p = c.push, opt = (v, t, cur) => `<option value="${v}"${String(cur) === String(v) ? ' selected' : ''}>${t}</option>`;
+  const hours = cur => [...Array(24)].map((_, h) => opt(h, pad(h) + ':00', cur)).join('');
+  $('setBody').innerHTML = `
+  <div class="sec"><h3>Sync tussen toestellen</h3>
+    ${dev.code ? `
+      <p class="sub">${dev.syncErr ? 'De laatste sync is niet gelukt (geen verbinding?). Je wijzigingen staan veilig op dit toestel en gaan mee met de volgende sync.' : dev.lastSync ? 'Alles is gesynchroniseerd, laatst om ' + hhmm(dev.lastSync) + '.' : 'Nog niet gesynchroniseerd.'}</p>
+      ${pairBlock()}
+      <div class="btns"><button class="btn quiet" id="sNow">Sync nu</button><button class="btn quiet danger" id="sOff">Ontkoppel dit toestel</button></div>`
+    : `
+      <p class="sub">Hou je gedachten, check-ins en doelen gelijk op je gsm en computer.</p>
+      <div class="btns"><button class="btn" id="sStart">Zet sync aan</button></div>
+      <p class="sub">Heb je Headspace al op een ander toestel? Scan daar de QR-code met deze camera, of typ de code:</p>
+      <div class="addrow"><input class="field" id="sCode" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn quiet" id="sJoin">Koppel</button></div>`}
+  </div>
+  <div class="sec"><h3>Meldingen</h3>
+    <label class="row"><span><b>Pushmeldingen op dit toestel</b><small>${pushSupported ? 'Af en toe een van je quotes of lessen, ook als Headspace dicht is.' : 'Niet beschikbaar in deze browser.'}</small></span><input type="checkbox" class="sw" id="pOn"${dev.push ? ' checked' : ''}${pushSupported ? '' : ' disabled'}></label>
+    <div class="row"><span><b>Quotes per dag</b><small>Telkens op een willekeurig moment.</small></span><div class="step"><button data-step="-1" aria-label="Minder">−</button><output id="pPer">${p.perDay}</output><button data-step="1" aria-label="Meer">+</button></div></div>
+    <div class="row"><span><b>Tussen</b></span><span><select id="pFrom" aria-label="Vanaf">${hours(p.from)}</select> en <select id="pTo" aria-label="Tot">${hours(p.to)}</select></span></div>
+    <label class="row"><span><b>Herinnering voor je check-in</b><small>Alleen als je die dag nog niet incheckte.</small></span><input type="checkbox" class="sw" id="pCheck"${p.checkin ? ' checked' : ''}></label>
+    ${p.checkin ? `<div class="row"><span><b>Herinner me om</b></span><input type="time" id="pAt" value="${esc(p.checkinAt)}"></div>` : ''}
+    <div class="row"><span><b>Quotes terwijl de app open staat</b></span><select id="qFreq" aria-label="Hoe vaak">${opt('off', 'Nooit', c.quoteFreq)}${opt('rare', 'Zelden', c.quoteFreq)}${opt('normal', 'Af en toe', c.quoteFreq)}${opt('often', 'Vaak', c.quoteFreq)}</select></div>
+    <div class="btns">${dev.push ? '<button class="btn quiet" id="pTest">Stuur een testmelding</button>' : ''}<button class="btn quiet" id="qNow">Toon nu een quote</button></div>
+    ${quotePool().length ? '' : '<p class="sub">Je hebt nog geen quotes. Geef een notitie de flag “quote” of markeer een stuk tekst met ❝.</p>'}
+  </div>
+  <div class="sec"><h3>App en back-up</h3>
+    <div class="btns">${installEvent ? '<button class="btn" id="aInstall">Installeer als app</button>' : ''}<button class="btn quiet" id="aExport">Download back-up</button><button class="btn quiet" id="aImport">Laad back-up</button></div>
+    <p class="sub">Een back-up uit de vorige versie van Headspace kan je hier ook laden.</p>
+  </div>`;
+}
+$('gear').onclick = () => { renderSettings(); $('set').showModal(); };
+$('setClose').onclick = () => $('set').close();
+const setPush = patch => { setCfg({ push: { ...cfg().push, ...patch } }); renderSettings(); };
+$('setBody').addEventListener('change', async e => {
+  const t = e.target;
+  if (t.id === 'pOn') { t.disabled = true; await (t.checked ? enablePush() : disablePush()); renderSettings(); }
+  if (t.id === 'pFrom' || t.id === 'pTo') {
+    const from = Number($('pFrom').value), to = Number($('pTo').value);
+    if (to <= from) { say('Het einduur moet later zijn dan het beginuur.'); return renderSettings(); }
+    setPush({ from, to });
+  }
+  if (t.id === 'pCheck') setPush({ checkin: t.checked });
+  if (t.id === 'pAt' && t.value) setPush({ checkinAt: t.value });
+  if (t.id === 'qFreq') { setCfg({ quoteFreq: t.value }); scheduleQuote(); }
+});
+$('setBody').addEventListener('click', async e => {
+  const t = e.target, id = t.id;
+  if (t.dataset.step) setPush({ perDay: Math.min(6, Math.max(0, cfg().push.perDay + Number(t.dataset.step))) });
+  if (id === 'pTest') { try { await api('/api/push', { action: 'test' }); say('Testmelding verstuurd.'); } catch (err) { say(err.status === 409 ? 'Er is geen toestel aangemeld. Zet de meldingen uit en weer aan.' : 'Versturen is mislukt.'); } }
+  if (id === 'qNow') { $('set').close(); if (!showQuote()) say('Geef eerst een notitie de flag “quote”.'); }
+  if (id === 'sStart') { t.disabled = true; await startSync(); }
+  if (id === 'sJoin') await joinSync($('sCode').value);
+  if (id === 'sNow') { const r = await sync(); say(r === 'ok' ? 'Alles is gesynchroniseerd.' : 'Synchroniseren is mislukt. Ben je online?'); }
+  if (id === 'sOff' && confirm('Dit toestel ontkoppelen? Je gedachten blijven hier staan, maar worden niet meer gesynchroniseerd.')) {
+    await disablePush(); dev.code = ''; dev.lastSync = 0; saveDev(); setDot(''); renderSettings();
+  }
+  if (id === 'aInstall' && installEvent) { installEvent.prompt(); await installEvent.userChoice; installEvent = null; renderSettings(); }
+  if (id === 'aExport') {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'headspace', version: 4, state: S }, null, 2)], { type: 'application/json' }));
+    a.download = `headspace-backup-${toKey(new Date())}.json`;
+    a.click();
+  }
+  if (id === 'aImport') $('file').click();
+});
+
+/* ---------- Back-up laden (ook uit de vorige versie) ---------- */
+function fromOld(raw) {
+  const inc = raw.version >= 2 ? raw : { notes: raw }, st = EMPTY(), t = Date.now();
+  for (const k in inc.notes || {}) inc.notes[k].forEach(n => st.notes[n.id] = { ...n, date: k, u: n.time || t });
+  (inc.entries || []).forEach(e => st.entries[e.id] = { ...e, u: e.time || t });
+  for (const k in inc.checkins || {}) st.entries['d' + k] = { id: 'd' + k, date: k, time: new Date(k + 'T08:00').getTime(), type: 'daily', ...inc.checkins[k], u: 1 };
+  (inc.goals?.goals || []).forEach(g => st.goals[g.id] = { time: t, ...g, u: t });
+  (inc.goals?.wins || []).forEach(w => st.wins[w.id] = { ...w, u: w.time || t });
+  (inc.quotes || []).forEach(q => st.notes['q' + q.id] = {
+    id: 'q' + q.id, date: toKey(new Date()), time: t, flags: ['quote'], u: 1,
+    text: q.text + (q.author ? ' — ' + q.author : ''), html: '<mark>' + esc(q.text) + '</mark>' + (q.author ? ' — ' + esc(q.author) : '')
+  });
+  return st;
+}
+$('file').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const raw = JSON.parse(r.result);
+      S = merge(S, raw.version >= 4 ? { ...EMPTY(), ...raw.state } : fromOld(raw));
+      changed(); render(); scheduleQuote(); renderSettings();
+      say('Back-up geladen.');
+    } catch (err) { say('Dit bestand kon niet gelezen worden.'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+};
+
+/* ---------- Opstarten ---------- */
+let installEvent = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvent = e; });
+addEventListener('appinstalled', () => { installEvent = null; });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+// Eerste keer openen vandaag: de dagelijkse check-in tonen (één keer per dag)
+function maybePrompt() {
+  const k = toKey(new Date());
+  if (hasDaily(k) || dev.prompted === k || document.querySelector('dialog[open]')) return;
+  dev.prompted = k; saveDev();
+  openCheckin('daily');
+}
+// Links zoals /#checkin (uit een melding) of /#code=... (koppellink)
+async function handleHash() {
+  const h = location.hash.slice(1);
+  if (!h) return;
+  history.replaceState(null, '', location.pathname);
+  if (h === 'checkin') openCheckin();
+  if (h === 'nieuw') { showTab('cal'); $('editor').focus(); }
+  if (h.startsWith('code=')) {
+    const code = decodeURIComponent(h.slice(5)), norm = c => c.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    dev.welcomed = true; saveDev();
+    if (norm(code) === norm(dev.code)) return say('Dit toestel is al gekoppeld.');
+    if (dev.code && !confirm('Dit toestel is al gekoppeld met een andere code. Wil je overschakelen? Wat op dit toestel staat, gaat mee.')) return;
+    await joinSync(code);
+  }
+}
+addEventListener('hashchange', handleHash);
+let lastDay = toKey(new Date());
+async function wake() {
+  // app gaat naar de achtergrond: openstaande wijzigingen meteen doorsturen
+  if (document.hidden) { if (pending) { clearTimeout(syncTimer); sync(); } return; }
+  if (toKey(new Date()) !== lastDay) { lastDay = toKey(new Date()); render(); } // nieuwe dag terwijl de app open stond
+  await sync();
+  maybePrompt();
+}
+document.addEventListener('visibilitychange', wake);
+addEventListener('online', () => sync());
+setInterval(() => { if (!document.hidden) sync(); }, 90000);
+addEventListener('pagehide', () => { if (pending) sync(); });
+
+// Data van de vorige versie op dezelfde site automatisch overnemen (de oude gegevens blijven staan als reservekopie)
+function migrateLocal() {
+  if (dev.migrated) return;
+  const get = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+  const raw = { version: 3, notes: get('journal-notes-v1', {}), entries: get('headspace-entries-v1', []), checkins: get('headspace-checkins-v1', {}), goals: get('headspace-goals-v1', {}), quotes: get('headspace-quotes-v1', []) };
+  if (!Array.isArray(raw.entries)) raw.entries = [];
+  if (!Array.isArray(raw.quotes)) raw.quotes = [];
+  try { S = merge(S, fromOld(raw)); saveLocal(); } catch (e) {}
+  dev.migrated = true; saveDev();
+}
+migrateLocal();
+render();
+setDot(dev.code ? 'ok' : '');
+scheduleQuote();
+// Vraag de browser om de data van Headspace nooit zelf op te ruimen
+navigator.storage?.persist?.().catch(() => {});
+(async () => {
+  await handleHash();
+  if (!dev.code && !dev.welcomed) return welcome('choose'); // de check-in volgt na het welkomstscherm
+  // eerst syncen, zodat een check-in van je andere toestel al binnen is (maar wacht er niet eeuwig op)
+  await Promise.race([sync(), new Promise(r => setTimeout(r, 3000))]);
+  maybePrompt();
+  checkPush();
+})();
+</script>
+</body>
+</html>
