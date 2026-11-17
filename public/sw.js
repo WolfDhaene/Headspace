@@ -1,5 +1,5 @@
 // Service worker: maakt Headspace installeerbaar, laat het offline openen en toont pushmeldingen.
-const CACHE = 'headspace-v6';
+const CACHE = 'headspace-v7';
 const SHELL = ['./', 'manifest.webmanifest', 'fonts/newsreader.woff2', 'fonts/newsreader-italic.woff2', 'fonts/instrument-sans.woff2', 'icons/icon-192.png', 'icons/icon-512.png', 'qrcode.js'];
 
 self.addEventListener('install', e => {
