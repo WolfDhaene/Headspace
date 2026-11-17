@@ -1,6 +1,5 @@
-// Service worker: maakt Headspace installeerbaar en laat het ook offline openen.
-// Eerst het netwerk (zodat updates meteen verschijnen), anders de bewaarde kopie.
-const CACHE = 'headspace-v1';
+// Service worker: maakt Headspace installeerbaar, laat het offline openen en toont pushmeldingen.
+const CACHE = 'headspace-v2';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -16,8 +15,10 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Eerst het netwerk (zodat updates meteen verschijnen), anders de bewaarde kopie. De server-kant (/api) nooit bewaren.
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || !e.request.url.startsWith('http')) return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || !url.protocol.startsWith('http') || url.pathname.startsWith('/api/')) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {
@@ -27,4 +28,17 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request))
   );
+});
+
+// Een melding van de server tonen
+self.addEventListener('push', e => {
+  let d = { title: 'Headspace', body: '' };
+  try { d = { ...d, ...e.data.json() }; } catch (err) {}
+  e.waitUntil(self.registration.showNotification(d.title, { body: d.body, icon: 'icon-192.png', badge: 'icon-192.png', tag: d.tag }));
+});
+
+// Tikken op de melding opent de app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window' }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow('./')));
 });

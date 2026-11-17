@@ -146,10 +146,12 @@ button.metric:hover{box-shadow:0 0 0 2px var(--accent) inset}
 select.flaginput{appearance:auto}
 mark{background:linear-gradient(transparent 40%,rgba(244,162,97,.5) 40%);color:inherit;border-radius:3px;padding:0 2px}
 .toast{max-height:60vh;overflow:auto}
+.row{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.row select{background:var(--bg1);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font:inherit}
 </style>
 </head>
 <body>
-<header class="top"><div class="brand"><i class="orb"></i>Headspace</div><div style="margin-left:auto;display:flex;gap:8px;align-items:center"><button class="chip" id="installBtn" hidden style="margin:0">Installeer app</button><button class="chip" id="ciBtn" style="margin:0">Check-in</button></div></header>
+<header class="top"><div class="brand"><i class="orb"></i>Headspace</div><div style="margin-left:auto;display:flex;gap:8px;align-items:center"><button class="chip" id="installBtn" hidden style="margin:0">Installeer app</button><button class="chip" id="ciBtn" style="margin:0">Check-in</button><button class="chip" id="setBtn" aria-label="Instellingen" style="margin:0;display:flex;align-items:center;padding:5px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div></header>
 <nav class="tabs">
   <button class="tab on" data-tab="cal">Agenda</button>
   <button class="tab" data-tab="recent">Terugblik</button>
@@ -236,6 +238,33 @@ mark{background:linear-gradient(transparent 40%,rgba(244,162,97,.5) 40%);color:i
 
 <div id="toast" class="toast" hidden role="status"></div>
 
+<div id="setModal" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="setT">
+  <div class="sheet" style="max-width:440px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="setT" style="text-transform:none;margin:0">Instellingen</h2><button class="x" id="setClose" aria-label="Sluiten">×</button></div>
+    <h3>Synchroniseren</h3>
+    <div class="sub">Vul op elk toestel dezelfde code in, dan blijft alles gelijk.</div>
+    <input class="flaginput" id="sCode" type="password" placeholder="Jouw code" autocomplete="off" style="margin:0 0 8px">
+    <button class="btn" id="sSave" style="margin:0">Opslaan en synchroniseren</button>
+    <div class="sub" id="sStatus" style="margin-top:8px"></div>
+    <h3>Meldingen op dit toestel</h3>
+    <div class="sub">Een random quote of les uit je notities, op een willekeurig moment. Gebruik de flag "quote" of "les".</div>
+    <button class="btn" id="pToggle" style="margin:0">Meldingen aanzetten</button>
+    <div class="sub" id="pStatus" style="margin-top:8px"></div>
+    <div id="pOpts" hidden>
+      <label class="row">Random quote of les <select id="pPer"></select></label>
+      <label class="row">Tussen <select id="pFrom"></select> en <select id="pTo"></select></label>
+      <label class="row"><input type="checkbox" id="pChk"> Check-in herinnering om <select id="pChkH"></select></label>
+      <button class="btn ghost" id="pTest" style="margin:0">Stuur testmelding</button>
+    </div>
+    <h3>Quote tijdens het gebruiken van de app</h3>
+    <select class="flaginput" id="qFreq" style="margin:0 0 8px" aria-label="Hoe vaak">
+      <option value="off">Nooit</option><option value="rare">Zelden (15 tot 40 min)</option>
+      <option value="normal">Af en toe (4 tot 12 min)</option><option value="often">Vaak (1 tot 4 min)</option>
+    </select>
+    <button class="btn ghost" id="qNow" style="margin:0">Toon er nu één</button>
+  </div>
+</div>
+
 <div id="ciModal" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="ciT">
   <div class="sheet">
     <div class="seg" id="ciMode"><button data-mode="daily" class="on">Dagelijks</button><button data-mode="moment">Nu</button></div>
@@ -257,7 +286,14 @@ const WD = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zater
 // { "2026-11-08": [ {id, text, html, flags, time}, ... ] }
 let data = {};
 try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { data = {}; }
-const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { alert('Opslaan mislukt.'); } };
+// Synchronisatie (zie Instellingen): verwijderde items onthouden we in 'tomb' zodat ze niet terugkomen
+const TK = 'headspace-tomb-v1', CODE_K = 'headspace-code';
+let tomb = {}, code = '', syncTimer = null, syncing = false, rev = 0, lastSync = 0;
+try { tomb = JSON.parse(localStorage.getItem(TK)) || {}; } catch (e) {}
+try { code = localStorage.getItem(CODE_K) || ''; } catch (e) {}
+const markGone = id => { tomb[id] = Date.now(); try { localStorage.setItem(TK, JSON.stringify(tomb)); } catch (e) {} };
+function scheduleSync() { if (!code) return; rev++; clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 2500); }
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { alert('Opslaan mislukt.'); } scheduleSync(); };
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, '0');
@@ -415,7 +451,7 @@ $('save').onclick = () => {
   const list = data[selected] = data[selected] || [];
   if (editingId) {
     const n = list.find(x => x.id === editingId);
-    if (n) Object.assign(n, { text, html, flags });
+    if (n) Object.assign(n, { text, html, flags, mod: Date.now() });
   } else {
     list.push({ id: Date.now().toString(36), text, html, flags, time: Date.now() });
   }
@@ -435,6 +471,7 @@ $('notes').addEventListener('click', e => {
   const del = e.target.dataset.del, edit = e.target.dataset.edit;
   const list = data[selected] || [];
   if (del && confirm('Deze notitie verwijderen?')) {
+    markGone(del);
     data[selected] = list.filter(n => n.id !== del);
     if (!data[selected].length) delete data[selected];
     persist(); renderCalendar(); renderNotes();
@@ -490,7 +527,7 @@ function renderFlags() {
   }
   $('fTitle').textContent = curFlag;
   const items = (all[curFlag] || []).sort((a, b) => b.k.localeCompare(a.k) || b.n.time - a.n.time);
-  $('fBody').innerHTML = quoteCtl() + (items.length ? items.map(({ k, n }) =>
+  $('fBody').innerHTML = (items.length ? items.map(({ k, n }) =>
     `<div class="note"><div class="rt">${noteHtml(n)}</div><small><button class="link" data-day="${k}">${label(k)} ${k.slice(0, 4)}</button></small></div>`
   ).join('') : '<div class="empty">Geen notities met deze flag.</div>');
 }
@@ -578,8 +615,8 @@ const METRICS = [
   { k: 'sleep',  n: 'Slaap',  lo: 'slecht', hi: 'super',       c: 'hsl(245 60% 68%)' }
 ];
 let entries = null, goals = { goals: [], wins: [] }, ciMode = 'daily', curMetric = null, range = 7;
-const saveE = () => { try { localStorage.setItem(EK, JSON.stringify(entries)); } catch (e) {} };
-const saveG = () => { try { localStorage.setItem(GK, JSON.stringify(goals)); } catch (e) {} };
+const saveE = () => { try { localStorage.setItem(EK, JSON.stringify(entries)); } catch (e) {} scheduleSync(); };
+const saveG = () => { try { localStorage.setItem(GK, JSON.stringify(goals)); } catch (e) {} scheduleSync(); };
 const noon = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 8).getTime(); };
 try { entries = JSON.parse(localStorage.getItem(EK)); } catch (e) {}
 try { goals = JSON.parse(localStorage.getItem(GK)) || goals; } catch (e) {}
@@ -616,7 +653,7 @@ const closeCheckin = () => { $('ciModal').hidden = true; };
 $('ciBtn').onclick = () => openCheckin();
 $('ciLater').onclick = closeCheckin;
 $('ciMode').addEventListener('click', e => { if (e.target.dataset.mode) setMode(e.target.dataset.mode); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCheckin(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeCheckin(); closeSettings(); } });
 $('ciSave').onclick = () => {
   const k = toKey(today), now = Date.now(), vals = {};
   METRICS.forEach(m => { if (ciMode === 'daily' || m.k !== 'sleep') vals[m.k] = Number($('ci-' + m.k).value); });
@@ -753,7 +790,7 @@ function renderGoals() {
 function addGoal() {
   const text = $('goalIn').value.trim();
   if (!text) return;
-  goals.goals.push({ id: Date.now().toString(36), text, due: $('goalDate').value || '' });
+  goals.goals.push({ id: Date.now().toString(36), text, due: $('goalDate').value || '', time: Date.now() });
   $('goalIn').value = ''; $('goalDate').value = '';
   saveG(); renderGoals();
 }
@@ -772,11 +809,12 @@ $('v-goals').addEventListener('click', e => {
   const { done, gdel, wdel } = e.target.dataset;
   if (done) { // een bereikt doel wordt automatisch iets om trots op te zijn
     const g = goals.goals.find(x => x.id === done);
+    markGone(done);
     goals.goals = goals.goals.filter(x => x.id !== done);
     if (g) goals.wins.push({ id: Date.now().toString(36), text: g.text, date: toKey(today), time: Date.now(), goal: true });
   }
-  if (gdel && confirm('Dit doel verwijderen?')) goals.goals = goals.goals.filter(x => x.id !== gdel);
-  if (wdel && confirm('Dit verwijderen?')) goals.wins = goals.wins.filter(x => x.id !== wdel);
+  if (gdel && confirm('Dit doel verwijderen?')) { markGone(gdel); goals.goals = goals.goals.filter(x => x.id !== gdel); }
+  if (wdel && confirm('Dit verwijderen?')) { markGone(wdel); goals.wins = goals.wins.filter(x => x.id !== wdel); }
   if (done || gdel || wdel) { saveG(); renderGoals(); }
 });
 
@@ -807,7 +845,7 @@ try {
 function quotePool() {
   const pool = [];
   for (const k in data) data[k].forEach(n => {
-    if (!(n.flags || []).includes('quote')) return;
+    if (!(n.flags || []).some(f => f === 'quote' || f === 'les')) return;
     const marks = [...new DOMParser().parseFromString(noteHtml(n), 'text/html').querySelectorAll('mark')].map(m => m.textContent.trim()).filter(Boolean);
     (marks.length ? marks : [(n.text || '').trim()]).filter(Boolean).forEach((t, i) => pool.push({ id: n.id + '-' + i, text: t, date: k }));
   });
@@ -837,24 +875,119 @@ function scheduleQuote() {
   const f = FREQ[qFreq];
   if (f) nextTimer = setTimeout(fireQuote, (f[0] + Math.random() * (f[1] - f[0])) * 60000);
 }
-// instellingen staan bovenaan bij de flag 'quote'
-function quoteCtl() {
-  if (curFlag !== 'quote') return '';
-  const opt = (v, t) => `<option value="${v}"${qFreq === v ? ' selected' : ''}>${t}</option>`;
-  return `<div class="qctl"><div class="sub">Een quote verschijnt af en toe terwijl Headspace open staat. Markeer met ❝ welk stuk van een notitie de quote is.</div>
-    <select class="flaginput" id="qFreq" style="margin:0 0 8px" aria-label="Hoe vaak">${opt('off', 'Nooit een quote tonen')}${opt('rare', 'Zelden (15 tot 40 min)')}${opt('normal', 'Af en toe (4 tot 12 min)')}${opt('often', 'Vaak (1 tot 4 min)')}</select>
-    <button class="btn ghost" id="qNow" style="margin:0 0 10px">Toon er nu één</button></div>`;
-}
 $('toast').addEventListener('click', () => { $('toast').hidden = true; });
-$('fBody').addEventListener('change', e => {
-  if (e.target.id !== 'qFreq') return;
+
+/* ---------- Instellingen: synchroniseren en meldingen ---------- */
+const PK = 'headspace-pushprefs';
+let prefs = { perDay: 2, from: 9, to: 21, checkin: false, checkinHour: 9 };
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(PK))); } catch (e) {}
+
+const api = async (path, opts = {}) => {
+  const r = await fetch(path, { ...opts, headers: { 'content-type': 'application/json', 'x-passcode': code } });
+  if (!r.ok) throw new Error(r.status === 401 ? 'verkeerde code' : r.status === 404 ? 'niet beschikbaar op dit adres' : 'fout ' + r.status);
+  return r.json();
+};
+const setSync = t => { $('sStatus').textContent = t; };
+function writeLocal() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data)); localStorage.setItem(EK, JSON.stringify(entries));
+    localStorage.setItem(GK, JSON.stringify(goals)); localStorage.setItem(TK, JSON.stringify(tomb));
+  } catch (e) {}
+}
+function refreshViews() {
+  renderCalendar(); renderNotes();
+  [['v-recent', renderRecent], ['v-flags', renderFlags], ['v-goals', renderGoals], ['v-stats', renderStats]].forEach(([id, fn]) => { if (!$(id).hidden) fn(); });
+}
+// Alles naar de server sturen, daar wordt het samengevoegd met de andere toestellen, en het resultaat komt terug
+async function syncNow() {
+  if (!code || syncing) return;
+  syncing = true;
+  const r0 = rev;
+  setSync('Synchroniseren...');
+  try {
+    const m = await api('/api/sync', { method: 'POST', body: JSON.stringify({ notes: data, entries, goals, tomb }) });
+    if (rev === r0) { // niets aangepast tijdens het wachten: nieuwe stand overnemen
+      data = m.notes || {}; entries = m.entries || []; goals = m.goals || { goals: [], wins: [] }; tomb = m.tomb || {};
+      writeLocal(); refreshViews();
+    }
+    lastSync = Date.now();
+    setSync('Gesynchroniseerd om ' + new Date(lastSync).toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' }));
+  } catch (e) { setSync('Synchroniseren mislukt: ' + e.message); }
+  syncing = false;
+  if (rev !== r0) scheduleSync();
+}
+
+const closeSettings = () => { $('setModal').hidden = true; };
+function openSettings() { $('sCode').value = code; $('qFreq').value = qFreq; $('setModal').hidden = false; refreshPushUI(); }
+$('setBtn').onclick = openSettings;
+$('setClose').onclick = closeSettings;
+$('setModal').addEventListener('click', e => { if (e.target === $('setModal')) closeSettings(); });
+$('sSave').onclick = () => {
+  code = $('sCode').value.trim();
+  try { localStorage.setItem(CODE_K, code); } catch (e) {}
+  if (!code) { setSync('Vul een code in.'); return; }
+  syncNow();
+};
+
+// Meldingen (push)
+$('pPer').innerHTML = [[0, 'Uit'], [1, '1 per dag'], [2, '2 per dag'], [3, '3 per dag'], [5, '5 per dag']].map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+['pFrom', 'pTo', 'pChkH'].forEach(id => { $(id).innerHTML = [...Array(24)].map((_, h) => `<option value="${h}">${h}u</option>`).join(''); });
+const b64 = str => Uint8Array.from(atob((str + '='.repeat((4 - str.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+async function getSub() { if (!pushOk()) return null; const reg = await navigator.serviceWorker.ready; return reg.pushManager.getSubscription(); }
+
+async function refreshPushUI() {
+  $('pPer').value = prefs.perDay; $('pFrom').value = prefs.from; $('pTo').value = prefs.to;
+  $('pChk').checked = prefs.checkin; $('pChkH').value = prefs.checkinHour;
+  if (!pushOk()) { $('pStatus').textContent = 'Dit toestel of deze browser ondersteunt geen meldingen.'; $('pToggle').hidden = true; $('pOpts').hidden = true; return; }
+  const sub = await getSub().catch(() => null);
+  $('pToggle').hidden = false;
+  $('pToggle').textContent = sub ? 'Meldingen uitzetten' : 'Meldingen aanzetten';
+  $('pOpts').hidden = !sub;
+  $('pStatus').textContent = sub ? 'Meldingen staan aan op dit toestel.' : 'Meldingen staan uit op dit toestel. Vul eerst je code in.';
+}
+async function savePrefs(sub) {
+  prefs = { perDay: +$('pPer').value, from: +$('pFrom').value, to: +$('pTo').value, checkin: $('pChk').checked, checkinHour: +$('pChkH').value };
+  try { localStorage.setItem(PK, JSON.stringify(prefs)); } catch (e) {}
+  sub = sub || await getSub();
+  if (sub) await api('/api/push', { method: 'POST', body: JSON.stringify({ subscription: sub.toJSON(), prefs }) });
+}
+$('pToggle').onclick = async () => {
+  try {
+    const sub = await getSub();
+    if (sub) {
+      await api('/api/push', { method: 'DELETE', body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {});
+      await sub.unsubscribe();
+    } else {
+      if (!code) throw new Error('vul eerst je code in');
+      await syncNow(); // de server heeft je quotes nodig om er één te kiezen
+      if (await Notification.requestPermission() !== 'granted') throw new Error('toestemming geweigerd');
+      const { publicKey } = await api('/api/push');
+      if (!publicKey) throw new Error('de server is nog niet ingesteld');
+      const reg = await navigator.serviceWorker.ready;
+      const s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(publicKey) });
+      await savePrefs(s);
+    }
+  } catch (e) { $('pStatus').textContent = 'Mislukt: ' + e.message; return; }
+  refreshPushUI();
+};
+['pPer', 'pFrom', 'pTo', 'pChk', 'pChkH'].forEach(id => $(id).addEventListener('change', () =>
+  savePrefs().then(() => { $('pStatus').textContent = 'Opgeslagen.'; }).catch(e => { $('pStatus').textContent = 'Opslaan mislukt: ' + e.message; })));
+$('pTest').onclick = async () => {
+  try {
+    const sub = await getSub();
+    await api('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test', endpoint: sub.endpoint }) });
+    $('pStatus').textContent = 'Testmelding verstuurd.';
+  } catch (e) { $('pStatus').textContent = 'Testmelding mislukt: ' + e.message; }
+};
+
+// Quote tijdens het gebruiken van de app
+$('qFreq').onchange = e => {
   qFreq = e.target.value;
   try { localStorage.setItem(QF, qFreq); } catch (err) {}
   scheduleQuote();
-});
-$('fBody').addEventListener('click', e => {
-  if (e.target.id === 'qNow' && !showQuote()) alert('Geef eerst een notitie de flag "quote".');
-});
+};
+$('qNow').onclick = () => { closeSettings(); if (!showQuote()) alert('Geef eerst een notitie de flag "quote" of "les".'); };
 
 /* ---------- Back-up ---------- */
 $('export').onclick = () => {
@@ -913,6 +1046,10 @@ $('installBtn').onclick = async () => {
   installEvent = null; $('installBtn').hidden = true;
 };
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+// Synchroniseren bij het openen en telkens als je terug naar de app gaat
+if (code) syncNow();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) syncNow(); });
 </script>
 </body>
 </html>
