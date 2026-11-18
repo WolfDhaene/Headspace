@@ -12,43 +12,45 @@
 <link rel="preload" href="fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* ---------- Basis: kleuren, lettertypes ---------- */
+/* ---------- Basis: kleuren, lettertypes, ritme (alles op een raster van 4px) ---------- */
 @font-face{font-family:'Newsreader';src:url(fonts/newsreader.woff2) format('woff2');font-weight:200 800;font-style:normal;font-display:swap}
 @font-face{font-family:'Newsreader';src:url(fonts/newsreader-italic.woff2) format('woff2');font-weight:200 800;font-style:italic;font-display:swap}
 @font-face{font-family:'Instrument Sans';src:url(fonts/instrument-sans.woff2) format('woff2');font-weight:400 700;font-display:swap}
 :root{
   --paper:#F6F8F2; --surface:#FFFFFF; --ink:#16221B; --muted:#5E6B62; --faint:#A3AEA6;
   --line:#DDE4D8; --soft:#EAF0E4; --moss:#2B6A4C; --lime:#D6F45C;
-  --mood:#E39A2D; --stress:#DE5570; --sleep:#5568DA;
+  /* grafiek: oker, steenrood en meerblauw, afgestemd op mos en papier */
+  --mood:#C98419; --stress:#B9503F; --sleep:#3B6C9A;
   --serif:'Newsreader',Georgia,serif; --ui:'Instrument Sans',system-ui,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.5 var(--ui);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+b,strong{font-weight:600}
 button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:none;padding:0;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--moss);outline-offset:2px}
-h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;letter-spacing:-.01em}
-h1{font-size:clamp(2rem,5.2vw,3.1rem);line-height:1.05}
-h2{font-size:1.55rem;line-height:1.15}
-h3{font-size:1.25rem;margin:38px 0 12px}
-.sub{color:var(--muted);font-size:.92rem;margin:6px 0 0}
-.empty{color:var(--muted);padding:26px 0;font-family:var(--serif);font-style:italic;font-size:1.1rem}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);line-height:1.05;letter-spacing:-.01em}
+h2{font-size:1.5rem;line-height:1.15}
+h3{font-size:1.25rem;margin:40px 0 12px}
+.sub{color:var(--muted);font-size:.875rem;margin:8px 0 0}
+.empty{color:var(--muted);padding:24px 0;font-family:var(--serif);font-size:1.125rem}
 
 /* ---------- Bovenbalk + navigatie ---------- */
-.top{position:sticky;top:0;z-index:10;background:var(--paper);display:flex;align-items:center;gap:12px;padding:10px max(18px,env(safe-area-inset-right)) 10px max(18px,env(safe-area-inset-left));padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid transparent;transition:border-color .2s}
+.top{position:sticky;top:0;z-index:10;background:var(--paper);display:flex;align-items:center;gap:12px;padding:12px max(20px,env(safe-area-inset-right)) 12px max(20px,env(safe-area-inset-left));padding-top:max(12px,env(safe-area-inset-top));border-bottom:1px solid transparent;transition:border-color .2s var(--ease)}
 .top.scrolled{border-color:var(--line)}
-.brand{display:flex;align-items:center;gap:9px;font:500 1.4rem var(--serif);letter-spacing:-.015em}
-.brand svg{width:26px;height:26px;color:var(--moss)}
-.brand .dot{transform-origin:12px 12px;animation:drift 7s ease-in-out infinite}
-@keyframes drift{50%{transform:rotate(18deg) translate(.6px,-1.2px)}}
-.actions{margin-left:auto;display:flex;align-items:center;gap:6px}
-.pill{border:1px solid var(--ink);border-radius:999px;padding:7px 15px;font-weight:600;font-size:.88rem;transition:background .15s,color .15s}
+.brand{display:flex;align-items:center;gap:8px;font:500 1.375rem var(--serif)}
+.brand svg{width:24px;height:24px;color:var(--moss)}
+.actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.pill{border:1px solid var(--ink);border-radius:999px;padding:8px 16px;font-weight:600;font-size:.875rem;transition:background-color .15s var(--ease),color .15s var(--ease)}
 .pill:hover{background:var(--ink);color:var(--paper)}
-.gear{position:relative;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--ink)}
+.gear{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink);transition:background-color .15s var(--ease)}
 .gear:hover{background:var(--soft)}
-.gear svg{width:21px;height:21px;transition:transform .5s}
+.gear svg{width:20px;height:20px;transition:transform .3s var(--ease)}
 .gear:hover svg{transform:rotate(60deg)}
 .gear i{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;border:2px solid var(--paper);box-sizing:content-box;display:none}
 .gear i.ok{display:block;background:var(--moss)}
@@ -56,228 +58,230 @@ h3{font-size:1.25rem;margin:38px 0 12px}
 .gear i.err{display:block;background:var(--mood)}
 @keyframes blink{50%{opacity:.25}}
 .nav{display:flex;gap:4px}
-.nav button{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:500;font-size:.95rem;padding:8px 13px;border-radius:999px;position:relative}
-.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav button{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:500;font-size:.9375rem;padding:8px 12px;border-radius:999px;position:relative;transition:color .15s var(--ease)}
+.nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .nav button.on{color:var(--ink);font-weight:600}
 @media (min-width:860px){
   .nav{margin-left:28px}
   .nav svg{display:none}
   .nav button:hover{color:var(--ink)}
-  .nav button.on:after{content:'';position:absolute;left:13px;right:13px;bottom:3px;height:4px;border-radius:2px;background:var(--lime)}
+  .nav button.on:after{content:'';position:absolute;left:12px;right:12px;bottom:4px;height:4px;border-radius:2px;background:var(--lime)}
 }
 @media (max-width:859px){
-  .nav{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
-  .nav button{flex:1;flex-direction:column;gap:2px;font-size:.68rem;padding:4px 0}
-  .nav svg{width:56px;height:30px;padding:4px 17px;border-radius:999px;transition:background .25s}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom));justify-content:space-around}
+  .nav button{flex:1;flex-direction:column;gap:2px;font-size:.6875rem;padding:4px 0}
+  .nav svg{width:56px;height:32px;padding:4px 16px;border-radius:999px;transition:background-color .25s var(--ease)}
   .nav button.on svg{background:var(--lime)}
 }
-main{max-width:1120px;margin:0 auto;padding:18px max(18px,env(safe-area-inset-right)) 110px max(18px,env(safe-area-inset-left))}
-@media (min-width:860px){main{padding-top:34px;padding-bottom:60px}}
+main{max-width:1120px;margin:0 auto;padding:20px max(20px,env(safe-area-inset-right)) 112px max(20px,env(safe-area-inset-left))}
+@media (min-width:860px){main{padding-top:32px;padding-bottom:64px}}
 .narrow{max-width:720px}
-::view-transition-old(root){animation:vt-out .18s ease both}
-::view-transition-new(root){animation:vt-in .32s cubic-bezier(.2,.7,.2,1) both}
+::view-transition-old(root){animation:vt-out .16s var(--ease) both}
+::view-transition-new(root){animation:vt-in .32s var(--ease) both}
 @keyframes vt-out{to{opacity:0}}
-@keyframes vt-in{from{opacity:0;transform:translateY(10px)}}
+@keyframes vt-in{from{opacity:0;transform:translateY(8px)}}
 
 /* ---------- Agenda ---------- */
-.cal{display:grid;gap:30px}
-@media (min-width:860px){.cal{grid-template-columns:360px 1fr;gap:64px;align-items:start}.month{position:sticky;top:92px}}
-.month-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal{display:grid;gap:32px}
+@media (min-width:860px){.cal{grid-template-columns:360px 1fr;gap:64px;align-items:start}.month{position:sticky;top:96px}}
+.month-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .month-h h2 span{color:var(--faint)}
-.month-h div{display:flex;align-items:center;gap:2px}
-.arrow{width:38px;height:38px;border-radius:50%;font-size:1.3rem;line-height:1}
+.month-h div{display:flex;align-items:center;gap:4px}
+.arrow{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;transition:background-color .15s var(--ease)}
 .arrow:hover,.textbtn:hover{background:var(--soft)}
-.textbtn{padding:7px 12px;border-radius:999px;font-size:.85rem;font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);justify-items:center;row-gap:2px}
-.dow{font-size:.74rem;color:var(--faint);padding:6px 0;font-weight:500}
-.d{position:relative;width:100%;max-width:46px;aspect-ratio:1;border-radius:50%;font-size:.95rem;font-variant-numeric:tabular-nums;transition:background .15s}
+.textbtn{padding:8px 12px;border-radius:999px;font-size:.875rem;font-weight:600;transition:background-color .15s var(--ease)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);justify-items:center;row-gap:4px}
+.dow{font-size:.75rem;color:var(--muted);padding:8px 0;font-weight:500}
+.d{position:relative;width:100%;max-width:44px;aspect-ratio:1;border-radius:50%;font-size:.9375rem;font-variant-numeric:tabular-nums;transition:background-color .15s var(--ease)}
 .d:hover{background:var(--soft)}
 .d.out{color:var(--faint)}
-.d.today{background:var(--lime);font-weight:700}
+.d.today{background:var(--lime);font-weight:600}
 .d.sel{background:var(--ink);color:var(--paper);font-weight:600}
-.d i{position:absolute;left:50%;bottom:13%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--moss)}
+.d i{position:absolute;left:50%;bottom:12%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--moss)}
 .d.sel i{background:var(--lime)}
 
-.composer{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:6px;transition:border-color .2s,box-shadow .2s}
+.composer{margin-top:24px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:4px;transition:border-color .2s var(--ease),box-shadow .2s var(--ease)}
 .composer:focus-within{border-color:var(--moss);box-shadow:0 0 0 4px rgba(43,106,76,.1)}
-.rt{font:400 1.2rem/1.55 var(--serif);overflow-wrap:anywhere}
-.rt mark,mark{background:linear-gradient(transparent 12%,var(--lime) 12%,var(--lime) 88%,transparent 88%);color:inherit;padding:0 3px;border-radius:2px}
-#editor{min-height:104px;padding:14px 16px 8px;outline:none}
-#editor:empty:before{content:attr(data-ph);color:var(--faint);font-style:italic}
-#flagInput{display:block;width:100%;border:none;outline:none;background:none;padding:8px 16px;font-size:.92rem;color:var(--moss)}
+.rt{font:400 1.1875rem/1.6 var(--serif);overflow-wrap:anywhere}
+.rt mark,mark{background:linear-gradient(transparent 12%,var(--lime) 12%,var(--lime) 88%,transparent 88%);color:inherit;padding:0 4px;border-radius:2px}
+#editor{min-height:104px;padding:16px 16px 8px;outline:none}
+#editor:empty:before{content:attr(data-ph);color:var(--faint)}
+#flagInput{display:block;width:100%;border:none;outline:none;background:none;padding:8px 16px;font-size:.9375rem;color:var(--moss)}
 #flagInput::placeholder{color:var(--faint)}
-#suggest{padding:0 12px;display:flex;flex-wrap:wrap;gap:2px}
-.composer-f{display:flex;align-items:center;gap:4px;padding:8px 6px 4px 8px;border-top:1px solid var(--soft);margin-top:8px}
-.tb{display:flex;gap:2px;margin-right:auto}
-.tb button{width:42px;height:42px;border-radius:50%;font:500 1.15rem var(--serif)}
+#suggest{padding:0 12px;display:flex;flex-wrap:wrap;gap:4px}
+.composer-f{display:flex;align-items:center;gap:4px;padding:8px 4px 4px 8px;border-top:1px solid var(--soft);margin-top:8px}
+.tb{display:flex;gap:4px;margin-right:auto}
+.tb button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:500 1.125rem var(--serif);transition:background-color .15s var(--ease)}
 .tb button:hover{background:var(--soft)}
 .tb button.on{background:var(--lime)}
-.btn{background:var(--ink);color:var(--paper);border-radius:999px;padding:11px 22px;font-weight:600;font-size:.95rem;transition:background .15s,transform .1s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--paper);border-radius:999px;padding:12px 20px;font-weight:600;font-size:.9375rem;transition:background-color .15s var(--ease),transform .12s var(--ease)}
 .btn:hover{background:var(--moss)}
 .btn:active{transform:scale(.97)}
 .btn:disabled{background:var(--line);color:var(--muted);cursor:default}
 .btn.quiet{background:none;color:var(--ink);border:1px solid var(--line)}
 .btn.quiet:hover{background:var(--soft)}
-.tag{color:var(--moss);font-size:.88rem;font-weight:500;padding:3px 5px;border-radius:6px}
+.tag{color:var(--moss);font-size:.875rem;font-weight:500;padding:4px 6px;border-radius:6px;transition:background-color .15s var(--ease)}
 .tag:hover{background:var(--soft)}
 /* Het loslaten: de tekst stijgt op en lost op */
-.ghost{position:fixed;z-index:30;pointer-events:none;padding:14px 22px;animation:release 1.2s cubic-bezier(.3,.6,.2,1) forwards}
-@keyframes release{60%{opacity:.5}to{transform:translateY(-150px) scale(1.05);filter:blur(12px);opacity:0;letter-spacing:.08em}}
+.ghost{position:fixed;z-index:30;pointer-events:none;padding:16px 16px 8px;animation:release 1.2s var(--ease) forwards}
+@keyframes release{60%{opacity:.5}to{transform:translateY(-148px) scale(1.04);filter:blur(12px);opacity:0;letter-spacing:.08em}}
 
-.notes{margin-top:26px}
-.note{display:grid;grid-template-columns:54px 1fr;gap:4px 10px;padding:18px 0;border-top:1px solid var(--line)}
-.note time{color:var(--faint);font-size:.82rem;padding-top:7px;font-variant-numeric:tabular-nums}
-.note .meta{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin-left:-5px}
-.note .acts{margin-left:auto;display:flex;gap:2px}
-.note .acts button{color:var(--muted);font-size:.82rem;padding:3px 7px;border-radius:6px}
+.notes{margin-top:24px}
+.note{display:grid;grid-template-columns:56px 1fr;gap:4px 12px;padding:20px 0;border-top:1px solid var(--line)}
+.note time{color:var(--muted);font-size:.8125rem;padding-top:8px;font-variant-numeric:tabular-nums}
+.note .meta{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-left:-6px}
+.note .acts{margin-left:auto;display:flex;gap:4px}
+.note .acts button{color:var(--muted);font-size:.8125rem;padding:4px 8px;border-radius:6px;transition:background-color .15s var(--ease),color .15s var(--ease)}
 .note .acts button:hover{background:var(--soft);color:var(--ink)}
-.note.new{animation:land .6s .25s cubic-bezier(.2,.7,.2,1) both}
-@keyframes land{from{opacity:0;transform:translateY(-14px)}}
-.dayhead{margin:34px 0 0;font:500 .85rem var(--ui);color:var(--muted)}
-.dayhead button{padding:4px 0;border-bottom:1px solid var(--line)}
+.note.new{animation:land .6s .24s var(--ease) both}
+@keyframes land{from{opacity:0;transform:translateY(-12px)}}
+.dayhead{margin:32px 0 0;font:500 .8125rem var(--ui);color:var(--muted)}
+.dayhead button{padding:4px 0;border-bottom:1px solid var(--line);transition:color .15s var(--ease),border-color .15s var(--ease)}
 .dayhead button:hover{color:var(--ink);border-color:var(--ink)}
 .dayhead + .note{border-top:none}
-.more{margin-top:18px}
+.more{margin-top:16px}
 
 /* ---------- Flags ---------- */
-.frow{display:flex;align-items:baseline;gap:14px;width:100%;padding:14px 0;border-top:1px solid var(--line);text-align:left}
-.frow b{font:400 clamp(1.5rem,4vw,2.1rem)/1.1 var(--serif);background:linear-gradient(var(--lime),var(--lime)) no-repeat 0 88%/0 38%;transition:background-size .3s}
-.frow:hover b{background-size:100% 38%}
-.frow span{margin-left:auto;color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
-.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem;font-weight:500;margin-bottom:10px;padding:4px 0}
+.frow{display:flex;align-items:baseline;gap:16px;width:100%;padding:16px 0;border-top:1px solid var(--line);text-align:left}
+.frow b{font:400 clamp(1.5rem,4vw,2.125rem)/1.1 var(--serif);background:linear-gradient(var(--lime),var(--lime)) no-repeat 0 88%/0 36%;transition:background-size .3s var(--ease)}
+.frow:hover b{background-size:100% 36%}
+.frow span{margin-left:auto;color:var(--muted);font-size:.875rem;font-variant-numeric:tabular-nums}
+.back{display:inline-flex;align-items:center;gap:4px;color:var(--muted);font-size:.875rem;font-weight:500;margin:0 0 12px -4px;padding:4px 0;transition:color .15s var(--ease)}
 .back:hover{color:var(--ink)}
 
 /* ---------- Doelen ---------- */
-.two{display:grid;gap:44px}
+.two{display:grid;gap:48px}
 @media (min-width:860px){.two{grid-template-columns:1fr 1fr;gap:64px}}
-.addrow{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
-.field{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 14px;outline:none}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 8px}
+.field{flex:1;min-width:0;height:48px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 20px;outline:none;transition:border-color .15s var(--ease)}
 .field:focus{border-color:var(--moss)}
-.addrow input[type=date]{flex:none;width:150px;color:var(--muted)}
-.goal{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line);font:400 1.15rem/1.35 var(--serif)}
-.goal small{display:block;font:400 .82rem var(--ui);color:var(--muted);margin-top:2px}
+.addrow .btn{height:48px}
+.addrow input[type=date]{flex:none;width:160px;color:var(--muted)}
+.goal{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:16px 0;border-top:1px solid var(--line);font:400 1.125rem/1.4 var(--serif)}
+.goal small{display:block;font:400 .8125rem var(--ui);color:var(--muted);margin-top:4px}
 .goal small.late{color:var(--stress)}
-.circ{width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);transition:background .2s}
+.circ{width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);transition:background-color .2s var(--ease)}
 .circ:hover{background:var(--lime)}
-.x{width:30px;height:30px;border-radius:50%;color:var(--faint);font-size:1.2rem;line-height:1}
+.x{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--muted);transition:background-color .15s var(--ease),color .15s var(--ease)}
 .x:hover{background:var(--soft);color:var(--ink)}
-.win{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:12px 0 12px 20px;font:400 1.15rem/1.35 var(--serif)}
-.win:before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:3px;background:var(--lime)}
-.win small{display:block;font:400 .82rem var(--ui);color:var(--muted);margin-top:2px}
-.win.new{animation:pop .7s cubic-bezier(.2,.9,.3,1.3) both}
-@keyframes pop{from{opacity:0;transform:scale(.9) translateX(-12px)}}
+.win{position:relative;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:12px 0 12px 20px;font:400 1.125rem/1.4 var(--serif)}
+.win:before{content:'';position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:2px;background:var(--lime)}
+.win small{display:block;font:400 .8125rem var(--ui);color:var(--muted);margin-top:4px}
+.win.new{animation:pop .5s var(--ease) both}
+@keyframes pop{from{opacity:0;transform:translateX(-12px)}}
 
 /* ---------- Headspace (statistieken) ---------- */
-.lead{font:400 clamp(1.5rem,4.2vw,2.3rem)/1.22 var(--serif);letter-spacing:-.012em;max-width:22em;margin:0}
+.lead{font:400 clamp(1.5rem,4.2vw,2.25rem)/1.25 var(--serif);max-width:22em;margin:0}
 .lead b{font-weight:500;background:linear-gradient(transparent 62%,var(--lime) 62%,var(--lime) 92%,transparent 92%)}
-.bubbles{margin-top:22px;width:100%;height:auto;display:block}
-.bubbles circle.b{fill:var(--moss);transform-box:fill-box;transform-origin:center;animation:grow .9s cubic-bezier(.2,.8,.3,1.2) both}
+.bubbles{margin-top:24px;width:100%;height:auto;display:block}
+.bubbles circle.b{fill:var(--moss);transform-box:fill-box;transform-origin:center;animation:grow .8s var(--ease) both}
 @keyframes grow{from{transform:scale(0)}}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.metric{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;transition:border-color .15s,transform .15s}
-.metric:hover{border-color:var(--ink);transform:translateY(-2px)}
-.metric span{font-size:.85rem;color:var(--muted);display:block}
-.metric b{font:400 2rem/1.1 var(--serif);display:block}
-.metric small{color:var(--muted);font-size:.74rem;display:block;line-height:1.3}
-.chips{display:flex;gap:6px;margin:0 0 10px}
-.chip{border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:.84rem;font-weight:500}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left;transition:border-color .15s var(--ease)}
+.metric:hover{border-color:var(--ink)}
+.metric span{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--muted)}
+.metric span i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.metric b{font:400 2rem/1 var(--serif);display:block;margin:8px 0;font-variant-numeric:tabular-nums}
+.metric small{color:var(--muted);font-size:.75rem;display:block;line-height:1.35}
+.chips{display:flex;gap:8px;margin:0 0 12px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.8125rem;font-weight:500;transition:background-color .15s var(--ease)}
+.chip:hover{background:var(--soft)}
 .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.chart{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 8px 6px}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 8px 4px}
 .chart svg{display:block;width:100%;height:auto}
-.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin:10px 0 0}
-.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.8125rem;color:var(--muted);margin:12px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:8px}
 .legend i{width:16px;height:4px;border-radius:2px}
-.hbar{display:block;width:100%;text-align:left;padding:9px 0}
-.hbar div:first-child{display:flex;justify-content:space-between;font-size:.92rem;margin-bottom:5px}
-.hbar div:first-child span{color:var(--muted)}
+.hbar{display:block;width:100%;text-align:left;padding:8px 0}
+.hbar div:first-child{display:flex;justify-content:space-between;font-size:.9375rem;margin-bottom:4px}
+.hbar div:first-child span{color:var(--muted);font-variant-numeric:tabular-nums}
 .hbar .t{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
-.hbar .t i{display:block;height:100%;border-radius:4px;background:var(--moss);animation:bar .8s cubic-bezier(.2,.7,.2,1) both;transform-origin:left}
+.hbar .t i{display:block;height:100%;border-radius:4px;background:var(--moss);animation:bar .8s var(--ease) both;transform-origin:left}
 @keyframes bar{from{transform:scaleX(0)}}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:16px}
-.fact b{font:400 1.9rem/1.1 var(--serif);display:block}
-.fact span{font-size:.8rem;color:var(--muted)}
-.erow{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
-.erow b{font:400 1.7rem var(--serif);text-align:center}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:16px}
+.fact b{font:400 2rem/1.1 var(--serif);display:block;font-variant-numeric:tabular-nums}
+.fact span{font-size:.8125rem;color:var(--muted)}
+.erow{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.erow b{font:400 1.75rem var(--serif);text-align:center;font-variant-numeric:tabular-nums}
 .erow small{color:var(--muted)}
 
 /* ---------- Vensters: check-in en instellingen ---------- */
-dialog{border:none;padding:0;background:var(--paper);color:var(--ink);width:100%;max-width:100%;max-height:92dvh;margin:auto 0 0;border-radius:28px 28px 0 0;overflow:auto;overscroll-behavior:contain}
+dialog{border:none;padding:0;background:var(--paper);color:var(--ink);width:100%;max-width:100%;max-height:92dvh;margin:auto 0 0;border-radius:24px 24px 0 0;overflow:auto;overscroll-behavior:contain}
 dialog::backdrop{background:rgba(22,34,27,.38);backdrop-filter:blur(3px)}
-dialog[open]{animation:sheet .38s cubic-bezier(.2,.8,.2,1)}
-dialog[open]::backdrop{animation:fade .3s}
+dialog[open]{animation:sheet .4s var(--ease)}
+dialog[open]::backdrop{animation:fade .3s var(--ease)}
 @keyframes sheet{from{transform:translateY(40%);opacity:0}}
 @keyframes fade{from{opacity:0}}
-.sheet{padding:26px 22px calc(26px + env(safe-area-inset-bottom))}
+.sheet{padding:24px 20px calc(24px + env(safe-area-inset-bottom))}
 @media (min-width:860px){
-  dialog{margin:auto;max-width:480px;border-radius:28px}
-  dialog#set{margin:0 0 0 auto;height:100dvh;max-height:100dvh;border-radius:28px 0 0 28px;max-width:460px}
-  dialog#set[open]{animation:drawer .38s cubic-bezier(.2,.8,.2,1)}
+  dialog{margin:auto;max-width:480px;border-radius:24px}
+  dialog#set{margin:0 0 0 auto;height:100dvh;max-height:100dvh;border-radius:24px 0 0 24px;max-width:460px}
+  dialog#set[open]{animation:drawer .4s var(--ease)}
   @keyframes drawer{from{transform:translateX(60%);opacity:0}}
-  .sheet{padding:34px}
+  .sheet{padding:32px}
 }
-.seg{display:flex;gap:4px;background:var(--soft);border-radius:999px;padding:4px;margin-bottom:22px}
-.seg button{flex:1;border-radius:999px;padding:8px;font-weight:500;font-size:.9rem;color:var(--muted)}
+.seg{display:flex;gap:4px;background:var(--soft);border-radius:999px;padding:4px;margin-bottom:24px}
+.seg button{flex:1;border-radius:999px;padding:8px;font-weight:500;font-size:.875rem;color:var(--muted);transition:background-color .15s var(--ease),color .15s var(--ease)}
 .seg button.on{background:var(--surface);color:var(--ink);font-weight:600}
-.scale{border:none;padding:0;margin:22px 0 0}
+.scale{border:none;padding:0;margin:24px 0 0}
 .scale legend{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:0;font-weight:600}
-.scale legend output{font:400 1.5rem var(--serif);color:var(--c)}
+.scale legend output{font:400 1.5rem var(--serif);color:var(--c);font-variant-numeric:tabular-nums}
 .pips{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:8px}
 .pips label{position:relative}
 .pips input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.pips span{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:.85rem;font-variant-numeric:tabular-nums;transition:transform .2s cubic-bezier(.2,.9,.3,1.4),background .15s}
-.pips input:checked + span{background:var(--c);border-color:var(--c);color:#fff;font-weight:700;transform:scale(1.14)}
+.pips span{display:grid;place-items:center;aspect-ratio:1;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:.875rem;font-variant-numeric:tabular-nums;transition:transform .2s var(--ease),background-color .15s var(--ease)}
+.pips input:checked + span{background:var(--c);border-color:var(--c);color:#fff;font-weight:600;transform:scale(1.1)}
 .pips input:focus-visible + span{outline:2px solid var(--moss);outline-offset:2px}
-.ends{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:6px}
-.sheet-f{display:flex;gap:8px;margin-top:26px}
+.ends{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-top:4px}
+.sheet-f{display:flex;gap:8px;margin-top:24px}
 .sheet-f .btn{flex:1}
 .set-h{display:flex;align-items:center;justify-content:space-between}
-.sec{margin-top:30px;border-top:1px solid var(--line);padding-top:6px}
-.sec h3{margin:14px 0 4px}
+.sec{margin-top:32px;border-top:1px solid var(--line);padding-top:4px}
+.sec h3{margin:16px 0 4px}
 .row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
 .row > span:first-child{min-width:0}
-.row b{display:block;font-weight:600;font-size:.95rem}
-.row small{display:block;color:var(--muted);font-size:.82rem;line-height:1.35;margin-top:2px}
-.row select,.row input[type=time]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 8px}
-.sw{appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s;margin:0}
-.sw:before{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.2,.9,.3,1.3)}
+.row b{display:block;font-weight:600;font-size:.9375rem}
+.row small{display:block;color:var(--muted);font-size:.8125rem;line-height:1.4;margin-top:2px}
+.row select,.row input[type=time]{height:36px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 12px}
+.sw{appearance:none;flex:none;width:52px;height:32px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background-color .2s var(--ease);margin:0}
+.sw:before{content:'';position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .25s var(--ease)}
 .sw:checked{background:var(--moss)}
 .sw:checked:before{transform:translateX(20px)}
 .step{display:flex;align-items:center;gap:4px;flex:none}
-.step button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);font-size:1.1rem}
+.step button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background-color .15s var(--ease)}
 .step button:hover{background:var(--soft)}
-.step output{width:28px;text-align:center;font:400 1.4rem var(--serif)}
-.code{font:600 1.05rem ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em;background:var(--surface);border:1px dashed var(--faint);border-radius:12px;padding:12px;text-align:center;margin:8px 0;user-select:all;overflow-wrap:anywhere}
+.step output{width:28px;text-align:center;font:400 1.5rem var(--serif);font-variant-numeric:tabular-nums}
+.code{font:600 1rem ui-monospace,Menlo,Consolas,monospace;letter-spacing:.04em;background:var(--surface);border:1px dashed var(--faint);border-radius:12px;padding:12px;text-align:center;margin:8px 0;user-select:all;overflow-wrap:anywhere}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.btns .btn{padding:9px 16px;font-size:.88rem}
+.btns .btn{padding:8px 16px;font-size:.875rem}
 .danger{color:var(--stress)!important}
 
 /* ---------- Koppelen ---------- */
-.pair{display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:center;margin:14px 0 4px}
-.pair b{display:block;font-weight:600;font-size:.95rem}
-.pair small{display:block;color:var(--muted);font-size:.84rem;line-height:1.4;margin-top:4px}
-.qr{width:132px;height:132px;border-radius:14px;border:1px solid var(--line);display:block}
-.wmark{width:46px;height:46px;color:var(--moss);margin-bottom:14px}
-.wmark .dot{transform-origin:12px 12px;animation:drift 7s ease-in-out infinite}
+.pair{display:grid;grid-template-columns:128px 1fr;gap:16px;align-items:center;margin:16px 0 4px}
+.pair b{display:block;font-weight:600;font-size:.9375rem}
+.pair small{display:block;color:var(--muted);font-size:.8125rem;line-height:1.4;margin-top:4px}
+.qr{width:128px;height:128px;border-radius:12px;border:1px solid var(--line);display:block}
+.wmark{width:48px;height:48px;color:var(--moss);margin-bottom:16px}
 #welcome h2{font-size:2rem}
-.choice{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-top:10px;transition:border-color .15s,transform .15s}
-.choice:hover{border-color:var(--ink);transform:translateY(-1px)}
+.choice{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-top:12px;transition:border-color .15s var(--ease)}
+.choice:hover{border-color:var(--ink)}
 .choice:disabled{opacity:.6}
-.choice b{display:block;font:500 1.15rem var(--serif)}
-.choice small{display:block;color:var(--muted);font-size:.86rem;margin-top:2px}
-.skip{display:block;margin:14px auto 0;color:var(--muted)}
+.choice b{display:block;font:500 1.125rem var(--serif)}
+.choice small{display:block;color:var(--muted);font-size:.875rem;margin-top:4px}
+.skip{display:block;margin:16px auto 0;color:var(--muted)}
 #wCode,#sCode{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.03em;text-transform:uppercase}
 @media (max-width:380px){.pair{grid-template-columns:1fr}.qr{margin:0 auto}}
 
 /* ---------- Quote-melding en korte berichtjes ---------- */
-.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 28px);max-width:460px;max-height:60vh;overflow:auto;background:var(--ink);color:var(--paper);border-radius:22px;padding:22px 46px 18px 24px;z-index:20;cursor:pointer;animation:rise .55s cubic-bezier(.2,.9,.3,1.2)}
-.toast:before{content:'“';position:absolute;left:18px;top:-4px;font:400 3.4rem var(--serif);color:var(--lime);line-height:1}
-.toast .qt{font:italic 400 1.3rem/1.38 var(--serif);padding-top:14px}
-.toast small{display:block;color:var(--faint);margin-top:8px;font-size:.8rem}
-.toast .x{position:absolute;top:10px;right:10px;color:var(--faint)}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 32px);max-width:460px;max-height:60vh;overflow:auto;background:var(--ink);color:var(--paper);border-radius:20px;padding:24px 48px 20px 24px;z-index:20;cursor:pointer;animation:rise .5s var(--ease)}
+.toast:before{content:'“';position:absolute;left:20px;top:-4px;font:400 3.5rem var(--serif);color:var(--lime);line-height:1}
+.toast .qt{font:italic 400 1.3125rem/1.4 var(--serif);padding-top:16px}
+.toast small{display:block;color:var(--faint);margin-top:8px;font-size:.8125rem}
+.toast .x{position:absolute;top:8px;right:8px;color:var(--faint)}
 .toast .x:hover{background:rgba(255,255,255,.12);color:#fff}
-@keyframes rise{from{opacity:0;transform:translate(-50%,24px) scale(.96)}}
-.snack{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:40;max-width:calc(100% - 28px);text-align:center;animation:fade .25s}
-@media (min-width:860px){.toast{bottom:30px}}
+@keyframes rise{from{opacity:0;transform:translate(-50%,16px)}}
+.snack{position:fixed;left:50%;top:calc(72px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 20px;border-radius:999px;font-size:.875rem;z-index:40;max-width:calc(100% - 32px);text-align:center;animation:fade .25s var(--ease)}
+@media (min-width:860px){.toast{bottom:32px}}
 @media (prefers-reduced-motion:reduce){*,::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -310,9 +314,9 @@ dialog[open]::backdrop{animation:fade .3s}
       <div class="month-h">
         <h2 id="mTitle"></h2>
         <div>
-          <button class="arrow" id="prev" aria-label="Vorige maand">‹</button>
+          <button class="arrow" id="prev" aria-label="Vorige maand"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
           <button class="textbtn" id="todayBtn">Vandaag</button>
-          <button class="arrow" id="next" aria-label="Volgende maand">›</button>
+          <button class="arrow" id="next" aria-label="Volgende maand"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
         </div>
       </div>
       <div class="grid" id="dows"></div>
@@ -330,7 +334,7 @@ dialog[open]::backdrop{animation:fade .3s}
             <button data-cmd="bold" aria-label="Vet (Ctrl+B)" tabindex="-1"><b>B</b></button>
             <button data-cmd="italic" aria-label="Cursief (Ctrl+I)" tabindex="-1"><i>I</i></button>
             <button data-cmd="underline" aria-label="Onderlijnd (Ctrl+U)" tabindex="-1"><u>U</u></button>
-            <button data-cmd="quote" aria-label="Markeer selectie als quote" title="Markeer selectie als quote" tabindex="-1">❝</button>
+            <button data-cmd="quote" aria-label="Markeer selectie als quote" title="Markeer selectie als quote" tabindex="-1"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 6H3M21 12H8M21 18H8M3 12v6"/></svg></button>
           </div>
           <button class="btn quiet" id="cancel" hidden>Annuleer</button>
           <button class="btn" id="save">Laat los</button>
@@ -346,7 +350,7 @@ dialog[open]::backdrop{animation:fade .3s}
   </section>
 
   <section id="v-flags" class="narrow" hidden>
-    <button class="back" id="fBack" hidden>‹ Alle flags</button>
+    <button class="back" id="fBack" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Alle flags</button>
     <h1 id="fTitle">Flags</h1>
     <div id="fBody" style="margin-top:20px"></div>
   </section>
@@ -372,7 +376,7 @@ dialog[open]::backdrop{animation:fade .3s}
   </section>
 
   <section id="v-stats" class="narrow" hidden>
-    <button class="back" id="sBack" hidden>‹ Headspace</button>
+    <button class="back" id="sBack" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>Headspace</button>
     <div id="stats"></div>
   </section>
 </main>
@@ -404,7 +408,7 @@ dialog[open]::backdrop{animation:fade .3s}
 
 <dialog id="set" aria-labelledby="setT">
   <div class="sheet">
-    <div class="set-h"><h2 id="setT">Instellingen</h2><button class="x" id="setClose" aria-label="Sluit">×</button></div>
+    <div class="set-h"><h2 id="setT">Instellingen</h2><button class="x" id="setClose" aria-label="Sluit"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
     <div id="setBody"></div>
     <input type="file" id="file" accept=".json,application/json" hidden>
   </div>
@@ -424,6 +428,11 @@ const METRICS = [
   { k: 'sleep',  n: 'Slaap',  lo: 'slecht', hi: 'super',       c: 'var(--sleep)' }
 ];
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+// Lijn-iconen (één set, 18px, lijndikte 1.5)
+const ICON = { x: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>', left: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>', minus: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>', plus: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>' };
+// Kommagetallen zoals in het Nederlands: 6,6 en −1,1
+const num = v => v.toFixed(1).replace('.', ',').replace('-', '−');
+const signed = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(1).replace('.', ',');
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, '0');
@@ -442,7 +451,7 @@ const DEF = { quoteFreq: 'normal', push: { perDay: 2, from: 9, to: 21, checkin: 
 const read = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
 let S = { ...EMPTY(), ...read('headspace-v4') };
 let dev = { code: '', lastSync: 0, prompted: '', push: false, ...read('headspace-device') };
-const saveLocal = () => { try { localStorage.setItem('headspace-v4', JSON.stringify(S)); } catch (e) { say('Opslaan op dit toestel is mislukt.'); } };
+const saveLocal = () => { try { localStorage.setItem('headspace-v4', JSON.stringify(S)); } catch (e) { say('Opslaan op dit toestel is mislukt'); } };
 const saveDev = () => { try { localStorage.setItem('headspace-device', JSON.stringify(dev)); } catch (e) {} };
 
 const live = c => Object.values(S[c]).filter(x => !x.del);
@@ -510,7 +519,7 @@ function newCode() {
 async function startSync(quiet) {
   dev.code = newCode();
   const r = await sync('create');
-  if (r !== 'ok') { dev.code = ''; setDot(''); if (!quiet) say(r === 'offline' ? 'Geen verbinding met de server. Probeer het later opnieuw.' : 'Sync kon niet gestart worden.'); }
+  if (r !== 'ok') { dev.code = ''; setDot(''); if (!quiet) say(r === 'offline' ? 'Geen verbinding met de server. Probeer het later opnieuw.' : 'Sync kon niet gestart worden'); }
   saveDev(); renderSettings();
   return r === 'ok';
 }
@@ -518,7 +527,7 @@ async function joinSync(code) {
   const raw = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (raw.length < 16) { say('Die code is te kort. Kijk hem na op je andere toestel.'); return false; }
   code = raw.match(/.{1,4}/g).join('-');
-  if (code === dev.code) { say('Dit toestel is al gekoppeld met deze code.'); return true; }
+  if (code === dev.code) { say('Dit toestel is al gekoppeld met deze code'); return true; }
   const prev = dev.code, endpoint = dev.push ? await currentEndpoint() : null;
   dev.code = code;
   const r = await sync('join');
@@ -675,7 +684,7 @@ function toggleQuote() {
   const m = markAtSelection();
   if (m) { m.replaceWith(...m.childNodes); return; }
   const sel = getSelection();
-  if (!sel.rangeCount || sel.isCollapsed || !$('editor').contains(sel.anchorNode)) return say('Selecteer eerst het stukje tekst dat je quote is.');
+  if (!sel.rangeCount || sel.isCollapsed || !$('editor').contains(sel.anchorNode)) return say('Selecteer eerst het stukje tekst dat je quote is');
   const box = document.createElement('div');
   box.appendChild(sel.getRangeAt(0).cloneContents());
   document.execCommand('insertHTML', false, '<mark>' + box.innerHTML + '</mark>');
@@ -707,7 +716,7 @@ function saveNote() {
     // de tekst stijgt op uit het tekstvak
     const r = $('editor').getBoundingClientRect(), g = document.createElement('div');
     g.className = 'ghost rt'; g.innerHTML = html;
-    g.style.cssText = `left:${r.left - 6}px;top:${r.top}px;width:${r.width + 12}px`;
+    g.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px`;
     document.body.append(g); setTimeout(() => g.remove(), 1300);
     freshId = uid();
     put('notes', { id: freshId, date: selected, text, html, flags, time: Date.now() });
@@ -761,8 +770,8 @@ function renderFlags() {
   }
   $('fTitle').textContent = '#' + curFlag;
   const items = (all[curFlag] || []).sort(byNewest);
-  const hint = curFlag === 'quote' ? '<p class="sub">Dit zijn je quotes. Markeer met ❝ welk stuk van een notitie de quote is. Hoe vaak ze opduiken stel je in via het tandwiel.</p>' : '';
-  $('fBody').innerHTML = hint + (items.length ? grouped(items) : '<div class="empty">Geen notities met deze flag.</div>');
+  const hint = curFlag === 'quote' ? '<p class="sub">Dit zijn je quotes. Selecteer een stuk tekst en tik op de quote-knop om enkel dat stuk als quote te gebruiken. Hoe vaak ze opduiken stel je in via het tandwiel.</p>' : '';
+  $('fBody').innerHTML = hint + (items.length ? grouped(items) : '<div class="empty">Geen notities met deze flag</div>');
 }
 $('fBack').onclick = () => { curFlag = null; renderFlags(); };
 
@@ -777,11 +786,11 @@ function renderGoals(fresh) {
       late = n < 0;
       d = late ? 'deadline voorbij' : n === 0 ? 'vandaag' : `nog ${n} dag${n > 1 ? 'en' : ''}`;
     }
-    return `<div class="goal"><button class="circ" data-done="${g.id}" aria-label="Doel bereikt"></button><div>${esc(g.text)}${d ? `<small class="${late ? 'late' : ''}">${d}</small>` : ''}</div><button class="x" data-gdel="${g.id}" aria-label="Verwijder">×</button></div>`;
+    return `<div class="goal"><button class="circ" data-done="${g.id}" aria-label="Doel bereikt"></button><div>${esc(g.text)}${d ? `<small class="${late ? 'late' : ''}">${d}</small>` : ''}</div><button class="x" data-gdel="${g.id}" aria-label="Verwijder">${ICON.x}</button></div>`;
   }).join('') : '<div class="empty">Nog geen doelen. Wat wil je bereiken?</div>';
   const wins = live('wins').sort(byNewest);
   $('winList').innerHTML = wins.length ? wins.map(w =>
-    `<div class="win${w.id === fresh ? ' new' : ''}"><div>${esc(w.text)}<small>${w.goal ? 'Doel bereikt, ' : ''}${label(w.date)}</small></div><button class="x" data-wdel="${w.id}" aria-label="Verwijder">×</button></div>`
+    `<div class="win${w.id === fresh ? ' new' : ''}"><div>${esc(w.text)}<small>${w.goal ? 'Doel bereikt, ' : ''}${label(w.date)}</small></div><button class="x" data-wdel="${w.id}" aria-label="Verwijder">${ICON.x}</button></div>`
   ).join('') : '<div class="empty">Ook kleine dingen tellen. Wat ging er vandaag goed?</div>';
 }
 function addWin(text, goal) {
@@ -828,7 +837,7 @@ function setMode(mode) {
   const daily = mode === 'daily', cur = daily ? S.entries['d' + toKey(new Date())] : null;
   document.querySelectorAll('#ciMode button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
   $('ciT').textContent = daily ? 'Hoe is het vandaag?' : 'Hoe voel je je nu?';
-  $('ciSub').textContent = daily ? 'Je dagelijkse check-in, met hoe je sliep.' : 'Een momentopname. Zoveel als je wil, zo zie je je pieken en dalen.';
+  $('ciSub').textContent = daily ? 'Je dagelijkse check-in, met hoe je sliep' : 'Een momentopname. Zoveel als je wil, zo zie je je pieken en dalen.';
   $('cr-sleep').hidden = !daily;
   $('ciNote').hidden = daily; $('ciNote').value = '';
   METRICS.forEach(m => document.querySelectorAll(`input[name=ci-${m.k}]`).forEach(i => i.checked = !!cur && !cur.del && Number(i.value) === cur[m.k]));
@@ -845,7 +854,7 @@ $('ciSave').onclick = () => {
   if (ciMode === 'daily') put('entries', { id: 'd' + k, date: k, time: now, type: 'daily', ...vals }); // één per dag
   else put('entries', { id: 'm' + uid(), date: k, time: now, type: 'moment', ...vals, ...(note ? { note } : {}) });
   $('ci').close();
-  say('Check-in bewaard.');
+  say('Check-in bewaard');
   if (tab === 'stats') renderStats();
 };
 // sluiten door naast een venster te klikken
@@ -880,7 +889,7 @@ function renderStats() {
   const bubbles = week.map((d, i) => {
     const x = 50 + i * 100, r = perDay[i] ? 10 + 38 * Math.sqrt(perDay[i] / maxD) : 0;
     return (r ? `<circle class="b" cx="${x}" cy="72" r="${r.toFixed(1)}" style="animation-delay:${i * 70}ms"${i === 6 ? ' fill-opacity="1"' : ' fill-opacity=".82"'}/>` : `<circle cx="${x}" cy="72" r="5" fill="none" stroke="var(--faint)" stroke-width="1.5"/>`)
-      + `<text x="${x}" y="142" text-anchor="middle" font-size="15" fill="var(--ink)" font-weight="${i === 6 ? 700 : 400}">${DOW[(d.getDay() + 6) % 7]}</text>`
+      + `<text x="${x}" y="142" text-anchor="middle" font-size="15" fill="var(--ink)" font-weight="${i === 6 ? 600 : 400}">${DOW[(d.getDay() + 6) % 7]}</text>`
       + `<text x="${x}" y="162" text-anchor="middle" font-size="13" fill="var(--muted)">${perDay[i] || ''}</text>`;
   }).join('');
 
@@ -888,7 +897,7 @@ function renderStats() {
     <p class="lead">${total
       ? `Deze week liet je <b>${total} woorden</b> los in ${count} gedachte${count === 1 ? '' : 'n'}, op ${active} van de 7 dagen.`
       : 'Deze week heb je nog niets losgelaten. Eén zin in de agenda is genoeg om te beginnen.'}</p>
-    <p class="sub">${[prev ? `${diff >= 0 ? '+' : ''}${diff} woorden tegenover de week ervoor` : '', streak > 1 ? `${streak} dagen op rij` : ''].filter(Boolean).join(', ')}</p>
+    <p class="sub">${[prev ? `${diff > 0 ? '+' : diff < 0 ? '−' : '±'}${Math.abs(diff)} woorden tegenover de week ervoor` : '', streak > 1 ? `${streak} dagen op rij` : ''].filter(Boolean).join(', ')}</p>
     <svg class="bubbles" viewBox="0 0 ${W} ${H}" role="img" aria-label="Woorden losgelaten per dag: ${week.map((d, i) => DOW[(d.getDay() + 6) % 7] + ' ' + perDay[i]).join(', ')}">${bubbles}</svg>
 
     <h3>Hoe je je voelde</h3>
@@ -916,21 +925,14 @@ function dayStats(m, keys) {
   });
 }
 const avgOf = ds => { const v = ds.filter(Boolean).map(x => x.avg); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
-function spark(vals, color) {
-  const W = 140, H = 48;
-  const pts = vals.map((v, i) => v == null ? null : [8 + i * (W - 16) / 6, H - 6 - (v - 1) / 9 * (H - 12)]);
-  let path = '';
-  pts.forEach(p => { if (p) path += (path ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); });
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="48" aria-hidden="true"><path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(p => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${color}"/>` : '').join('')}</svg>`;
-}
 function metricsBlock(keys) {
   const prevKeys = [...Array(7)].map((_, i) => toKey(ago(13 - i)));
   if (!METRICS.some(m => dayStats(m.k, keys).some(Boolean)))
-    return '<div class="empty">Doe een check-in om hier je mood, stress en slaap te zien.</div>';
-  return '<p class="sub" style="margin:0 0 10px">Tik op een kaartje voor het verloop.</p><div class="metrics">' + METRICS.map(m => {
+    return '<div class="empty">Doe een check-in om hier je mood, stress en slaap te zien</div>';
+  return '<p class="sub" style="margin:0 0 12px">Tik op een kaartje voor het verloop</p><div class="metrics">' + METRICS.map(m => {
     const ds = dayStats(m.k, keys), a = avgOf(ds), p = avgOf(dayStats(m.k, prevKeys));
-    const note = a != null && p != null ? `${a - p >= 0 ? '+' : ''}${(a - p).toFixed(1)} tegenover vorige week` : 'gemiddelde, 7 dagen';
-    return `<button class="metric" data-metric="${m.k}"><span>${m.n}</span><b>${a == null ? '–' : a.toFixed(1)}</b>${spark(ds.map(x => x && x.avg), m.c)}<small>${note}</small></button>`;
+    const note = a != null && p != null ? `${signed(a - p)} tegenover vorige week` : 'gemiddelde van 7 dagen';
+    return `<button class="metric" data-metric="${m.k}" style="--c:${m.c}"><span><i></i>${m.n}</span><b>${a == null ? '–' : num(a)}</b><small>${note}</small></button>`;
   }).join('') + '</div>';
 }
 const rangeChips = () => '<div class="chips">' + [7, 30, 90].map(r => `<button class="chip ${r === range ? 'on' : ''}" data-range="${r}">${r} dagen</button>`).join('') + '</div>';
@@ -972,7 +974,7 @@ function combinedBlock() {
   const has = live('entries').some(e => keys.includes(e.date));
   return `<h3>Alles samen</h3>${rangeChips()}` + (has
     ? `${drawChart(METRICS, days, keys, false)}${legend(METRICS)}<p class="sub">De lijnen zijn het gemiddelde per dag. Bij stress is lager beter.</p>`
-    : '<div class="empty">Nog geen check-ins in deze periode.</div>');
+    : '<div class="empty">Nog geen check-ins in deze periode</div>');
 }
 // Detail van één metric
 function renderMetric() {
@@ -980,7 +982,7 @@ function renderMetric() {
   const ds = dayStats(m.k, keys);
   const inR = live('entries').filter(e => e[m.k] != null && keys.includes(e.date)).sort((a, b) => a.time - b.time);
   const head = `<h1>${m.n}</h1><p class="sub" style="margin-bottom:18px">laatste ${range} dagen</p>${rangeChips()}`;
-  if (!inR.length) { $('stats').innerHTML = head + '<div class="empty">Nog geen check-ins in deze periode.</div>'; return; }
+  if (!inR.length) { $('stats').innerHTML = head + '<div class="empty">Nog geen check-ins in deze periode</div>'; return; }
   const hi = inR.reduce((a, e) => e[m.k] >= a[m.k] ? e : a), lo = inR.reduce((a, e) => e[m.k] < a[m.k] ? e : a);
   const fmt = e => { const d = new Date(e.time); return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
   const rows = inR.slice().reverse().slice(0, 10).map(e =>
@@ -988,7 +990,7 @@ function renderMetric() {
   $('stats').innerHTML = `${head}${drawChart([m], days, keys, true)}${legend([m])}
     <p class="sub">De lijn is het gemiddelde van de dag. Het balkje loopt van je laagste tot je hoogste moment, de ringen markeren de uitschieters.${m.k === 'sleep' ? ' Slaap komt alleen uit je dagelijkse check-in.' : ''}</p>
     <div class="facts">
-      <div class="fact"><b>${avgOf(ds).toFixed(1)}</b><span>gemiddelde</span></div>
+      <div class="fact"><b>${num(avgOf(ds))}</b><span>gemiddelde</span></div>
       <div class="fact"><b>${hi[m.k]}</b><span>hoogste, ${fmt(hi)}</span></div>
       <div class="fact"><b>${lo[m.k]}</b><span>laagste, ${fmt(lo)}</span></div>
       <div class="fact"><b>${inR.length}</b><span>check-ins</span></div>
@@ -997,7 +999,7 @@ function renderMetric() {
 }
 
 /* ---------- Quotes: notes met de flag 'quote' (of 'les') ---------- */
-// Is een stuk tekst gemarkeerd (knop ❝), dan is dat de quote. Anders telt de hele note.
+// Is een stuk tekst gemarkeerd (quote-knop), dan is dat de quote. Anders telt de hele note.
 const FREQ = { off: null, rare: [15, 40], normal: [4, 12], often: [1, 4] }; // minuten tussen quotes in de app
 let lastQ = null, toastTimer, nextTimer, snackTimer;
 function quotePool() {
@@ -1015,7 +1017,7 @@ function showQuote() {
   const pool = all.length > 1 ? all.filter(q => q.id !== lastQ) : all; // niet twee keer dezelfde na elkaar
   const q = pool[Math.floor(Math.random() * pool.length)];
   lastQ = q.id;
-  $('toast').innerHTML = `<button class="x" aria-label="Sluiten">×</button><div class="qt">${esc(q.text)}</div><small>uit je notitie van ${label(q.date)}</small>`;
+  $('toast').innerHTML = `<button class="x" aria-label="Sluiten">${ICON.x}</button><div class="qt">${esc(q.text)}</div><small>uit je notitie van ${label(q.date)}</small>`;
   $('toast').hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => $('toast').hidden = true, 15000);
@@ -1043,12 +1045,12 @@ const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window &&
 const swReady = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('sw')), 5000))]);
 const b64ToBytes = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
 async function enablePush() {
-  if (!pushSupported) return say('Deze browser ondersteunt geen pushmeldingen.');
+  if (!pushSupported) return say('Deze browser ondersteunt geen pushmeldingen');
   if (!dev.code && !(await startSync())) return; // meldingen hebben sync nodig
   if (await Notification.requestPermission() !== 'granted') return say('Meldingen zijn geblokkeerd. Laat ze toe in de site-instellingen van je browser.');
   try {
     await subscribeDevice();
-    dev.push = true; saveDev(); say('Meldingen staan aan op dit toestel.');
+    dev.push = true; saveDev(); say('Meldingen staan aan op dit toestel');
   } catch (e) { say('Meldingen aanzetten is mislukt. Probeer het opnieuw.'); }
 }
 // Meldt dit toestel aan bij de server. Een oud abonnement met een andere sleutel wordt vervangen.
@@ -1099,7 +1101,7 @@ function pairBlock() {
 }
 document.addEventListener('click', async e => {
   const a = e.target.closest('[data-pair]')?.dataset.pair;
-  if (a === 'copy') { await navigator.clipboard.writeText(dev.code).catch(() => {}); say('Code gekopieerd.'); }
+  if (a === 'copy') { await navigator.clipboard.writeText(dev.code).catch(() => {}); say('Code gekopieerd'); }
   if (a === 'share') {
     if (navigator.share) navigator.share({ title: 'Headspace koppelen', text: 'Open deze link op je andere toestel om Headspace te koppelen.', url: pairLink() }).catch(() => {});
     else { await navigator.clipboard.writeText(pairLink()).catch(() => {}); say('Koppellink gekopieerd. Open hem op je andere toestel.'); }
@@ -1111,8 +1113,8 @@ function welcome(step) {
   const b = $('wBody');
   if (step === 'choose') b.innerHTML = `
     <p class="sub">Gebruik je Headspace op je gsm én je computer? Koppel ze, dan staan je gedachten, check-ins en doelen overal.</p>
-    <button class="choice" data-w="new"><b>Dit is mijn eerste toestel</b><small>Je krijgt een QR-code om je andere toestel te koppelen.</small></button>
-    <button class="choice" data-w="join"><b>Ik gebruik Headspace al op een ander toestel</b><small>Haal je bestaande gedachten naar hier.</small></button>
+    <button class="choice" data-w="new"><b>Dit is mijn eerste toestel</b><small>Je krijgt een QR-code om je andere toestel te koppelen</small></button>
+    <button class="choice" data-w="join"><b>Ik gebruik Headspace al op een ander toestel</b><small>Haal je bestaande gedachten naar hier</small></button>
     <button class="textbtn skip" data-w="skip">Begin zonder koppelen</button>`;
   if (step === 'started') b.innerHTML = `
     <p class="sub">Sync staat aan. Koppel nu je andere toestel, dat kan ook later via het tandwiel.</p>
@@ -1120,8 +1122,8 @@ function welcome(step) {
     <div class="sheet-f"><button class="btn" data-w="done">Begin met schrijven</button></div>`;
   if (step === 'join') b.innerHTML = `
     <p class="sub">Tik op je andere toestel op het tandwiel rechtsboven. Daar staat een QR-code: scan die met de camera van dit toestel. Of typ de code hieronder.</p>
-    <div class="addrow"><input class="field" id="wCode" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn" data-w="joinGo">Koppel</button></div>
-    <button class="textbtn skip" data-w="choose">‹ Terug</button>`;
+    <div class="addrow"><input class="field" id="wCode" placeholder="Koppelcode" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn" data-w="joinGo">Koppel</button></div>
+    <button class="back skip" data-w="choose">${ICON.left}Terug</button>`;
   if (step === 'offline') b.innerHTML = `
     <p class="sub">De sync-server is nu niet bereikbaar. Je kan gewoon beginnen: alles wordt op dit toestel bewaard. Koppelen kan later via het tandwiel.</p>
     <div class="sheet-f"><button class="btn" data-w="done">Begin met schrijven</button></div>`;
@@ -1152,17 +1154,17 @@ function renderSettings() {
       <p class="sub">Hou je gedachten, check-ins en doelen gelijk op je gsm en computer.</p>
       <div class="btns"><button class="btn" id="sStart">Zet sync aan</button></div>
       <p class="sub">Heb je Headspace al op een ander toestel? Scan daar de QR-code met deze camera, of typ de code:</p>
-      <div class="addrow"><input class="field" id="sCode" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn quiet" id="sJoin">Koppel</button></div>`}
+      <div class="addrow"><input class="field" id="sCode" placeholder="Koppelcode" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Koppelcode"><button class="btn quiet" id="sJoin">Koppel</button></div>`}
   </div>
   <div class="sec"><h3>Meldingen</h3>
-    <label class="row"><span><b>Pushmeldingen op dit toestel</b><small>${pushSupported ? 'Af en toe een van je quotes of lessen, ook als Headspace dicht is.' : 'Niet beschikbaar in deze browser.'}</small></span><input type="checkbox" class="sw" id="pOn"${dev.push ? ' checked' : ''}${pushSupported ? '' : ' disabled'}></label>
-    <div class="row"><span><b>Quotes per dag</b><small>Telkens op een willekeurig moment.</small></span><div class="step"><button data-step="-1" aria-label="Minder">−</button><output id="pPer">${p.perDay}</output><button data-step="1" aria-label="Meer">+</button></div></div>
+    <label class="row"><span><b>Pushmeldingen op dit toestel</b><small>${pushSupported ? 'Af en toe een van je quotes of lessen, ook als Headspace dicht is' : 'Niet beschikbaar in deze browser'}</small></span><input type="checkbox" class="sw" id="pOn"${dev.push ? ' checked' : ''}${pushSupported ? '' : ' disabled'}></label>
+    <div class="row"><span><b>Quotes per dag</b><small>Telkens op een willekeurig moment</small></span><div class="step"><button data-step="-1" aria-label="Minder">${ICON.minus}</button><output id="pPer">${p.perDay}</output><button data-step="1" aria-label="Meer">${ICON.plus}</button></div></div>
     <div class="row"><span><b>Tussen</b></span><span><select id="pFrom" aria-label="Vanaf">${hours(p.from)}</select> en <select id="pTo" aria-label="Tot">${hours(p.to)}</select></span></div>
-    <label class="row"><span><b>Herinnering voor je check-in</b><small>Alleen als je die dag nog niet incheckte.</small></span><input type="checkbox" class="sw" id="pCheck"${p.checkin ? ' checked' : ''}></label>
+    <label class="row"><span><b>Herinnering voor je check-in</b><small>Alleen als je die dag nog niet incheckte</small></span><input type="checkbox" class="sw" id="pCheck"${p.checkin ? ' checked' : ''}></label>
     ${p.checkin ? `<div class="row"><span><b>Herinner me om</b></span><input type="time" id="pAt" value="${esc(p.checkinAt)}"></div>` : ''}
     <div class="row"><span><b>Quotes terwijl de app open staat</b></span><select id="qFreq" aria-label="Hoe vaak">${opt('off', 'Nooit', c.quoteFreq)}${opt('rare', 'Zelden', c.quoteFreq)}${opt('normal', 'Af en toe', c.quoteFreq)}${opt('often', 'Vaak', c.quoteFreq)}</select></div>
     <div class="btns">${dev.push ? '<button class="btn quiet" id="pTest">Stuur een testmelding</button>' : ''}<button class="btn quiet" id="qNow">Toon nu een quote</button></div>
-    ${quotePool().length ? '' : '<p class="sub">Je hebt nog geen quotes. Geef een notitie de flag “quote” of markeer een stuk tekst met ❝.</p>'}
+    ${quotePool().length ? '' : '<p class="sub">Je hebt nog geen quotes. Geef een notitie de flag “quote” of markeer een stuk tekst met de quote-knop.</p>'}
   </div>
   <div class="sec"><h3>App en back-up</h3>
     <div class="btns">${installEvent ? '<button class="btn" id="aInstall">Installeer als app</button>' : ''}<button class="btn quiet" id="aExport">Download back-up</button><button class="btn quiet" id="aImport">Laad back-up</button></div>
@@ -1177,7 +1179,7 @@ $('setBody').addEventListener('change', async e => {
   if (t.id === 'pOn') { t.disabled = true; await (t.checked ? enablePush() : disablePush()); renderSettings(); }
   if (t.id === 'pFrom' || t.id === 'pTo') {
     const from = Number($('pFrom').value), to = Number($('pTo').value);
-    if (to <= from) { say('Het einduur moet later zijn dan het beginuur.'); return renderSettings(); }
+    if (to <= from) { say('Het einduur moet later zijn dan het beginuur'); return renderSettings(); }
     setPush({ from, to });
   }
   if (t.id === 'pCheck') setPush({ checkin: t.checked });
@@ -1187,11 +1189,11 @@ $('setBody').addEventListener('change', async e => {
 $('setBody').addEventListener('click', async e => {
   const t = e.target, id = t.id;
   if (t.dataset.step) setPush({ perDay: Math.min(6, Math.max(0, cfg().push.perDay + Number(t.dataset.step))) });
-  if (id === 'pTest') { try { await api('/api/push', { action: 'test' }); say('Testmelding verstuurd.'); } catch (err) { say(err.status === 409 ? 'Er is geen toestel aangemeld. Zet de meldingen uit en weer aan.' : 'Versturen is mislukt.'); } }
-  if (id === 'qNow') { $('set').close(); if (!showQuote()) say('Geef eerst een notitie de flag “quote”.'); }
+  if (id === 'pTest') { try { await api('/api/push', { action: 'test' }); say('Testmelding verstuurd'); } catch (err) { say(err.status === 409 ? 'Er is geen toestel aangemeld. Zet de meldingen uit en weer aan.' : 'Versturen is mislukt'); } }
+  if (id === 'qNow') { $('set').close(); if (!showQuote()) say('Geef eerst een notitie de flag “quote”'); }
   if (id === 'sStart') { t.disabled = true; await startSync(); }
   if (id === 'sJoin') await joinSync($('sCode').value);
-  if (id === 'sNow') { const r = await sync(); say(r === 'ok' ? 'Alles is gesynchroniseerd.' : 'Synchroniseren is mislukt. Ben je online?'); }
+  if (id === 'sNow') { const r = await sync(); say(r === 'ok' ? 'Alles is gesynchroniseerd' : 'Synchroniseren is mislukt. Ben je online?'); }
   if (id === 'sOff' && confirm('Dit toestel ontkoppelen? Je gedachten blijven hier staan, maar worden niet meer gesynchroniseerd.')) {
     await disablePush(); dev.code = ''; dev.lastSync = 0; saveDev(); setDot(''); renderSettings();
   }
@@ -1228,8 +1230,8 @@ $('file').onchange = e => {
       const raw = JSON.parse(r.result);
       S = merge(S, raw.version >= 4 ? { ...EMPTY(), ...raw.state } : fromOld(raw));
       changed(); render(); scheduleQuote(); renderSettings();
-      say('Back-up geladen.');
-    } catch (err) { say('Dit bestand kon niet gelezen worden.'); }
+      say('Back-up geladen');
+    } catch (err) { say('Dit bestand kon niet gelezen worden'); }
   };
   r.readAsText(f);
   e.target.value = '';
@@ -1258,7 +1260,7 @@ async function handleHash() {
   if (h.startsWith('code=')) {
     const code = decodeURIComponent(h.slice(5)), norm = c => c.toUpperCase().replace(/[^A-Z0-9]/g, '');
     dev.welcomed = true; saveDev();
-    if (norm(code) === norm(dev.code)) return say('Dit toestel is al gekoppeld.');
+    if (norm(code) === norm(dev.code)) return say('Dit toestel is al gekoppeld');
     if (dev.code && !confirm('Dit toestel is al gekoppeld met een andere code. Wil je overschakelen? Wat op dit toestel staat, gaat mee.')) return;
     await joinSync(code);
   }
